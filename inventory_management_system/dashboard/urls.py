@@ -5,7 +5,9 @@ app_name = 'dashboard'
 
 urlpatterns = [
     path('',views.index, name='index'),
-    path('staff/', views.staff, name='staff'),
-    path('product/',views.product, name='product'),
-    path('order/', views.order, name='order'),
+    path('admin/addcategory/', views.add_category, name='addcategory'),
+    path('admin/addsupplier/', views.add_supplier, name='addsupplier'),
+    path('admin/addcustomer/', views.add_customer, name='addcustomer'),
+    path('admin/addproduct/', views.add_product, name='addproduct'),
+    path('addpurchase/', views.add_purchase_order, name='addpurchase'),
 ]
