@@ -1,38 +1,21 @@
-{% extends './base.html' %}
-{% load static %}
-{% block title %}Login{% endblock title %}
-{% block content %}
-<div class="login-userheading">
-    <h3>Sign In</h3>
-    <h4>Please login to your account</h4>
-    </div>
-    <form method="POST" action="{% url 'login' %}">
-        {% csrf_token %}
-        <div class="form-login">
-        <label>Username</label>
-        <div class="form-addons">
-            {{ form.username }}
-        <!-- <img src="{% static 'img/icons/mail.svg' %}" alt="img"> -->
-        </div>
-        </div>
-        <div class="form-login">
-        <label>Password</label>
-        <div class="pass-group">
-            {{ form.password }}
-        </div>
-        </div>
-        <div class="form-login">
-        <div class="alreadyuser">
-        <h4><a href="forgetpassword.html" class="hover-a">Forgot Password?</a></h4>
-        </div>
-        </div>
-        <div class="form-login">
-        <button type="submit" class="btn btn-login">Sign In</button>
-        <!-- <a class="btn btn-login" href="#" type="submit">Sign In</a> -->
-        </div>
-    </form>
-    <div class="signinform text-center">
-    <h4>Don’t have an account? <a href="{% url 'register' %}" class="hover-a">Sign Up</a></h4>
-    </div>
-{% endblock %}
+{% extends 'partials/base.html' %}
+{% block title %}Login Page{% endblock %}
+{% comment %} {% load crispy_forms_tags %} {% endcomment %}
+{% load bootstrap4 %}
 
+{% block content %}
+<div class="container">
+    <div class="row mt-5">
+        <div class="col-md-6 offset-md-3">
+            <div class="border bg-white p-3">
+                <h3>Login Page</h3>
+                <form method="post">
+                    {% csrf_token %}
+                    {% bootstrap_form form %}
+                    <input class="btn btn-success" type="submit">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

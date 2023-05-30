@@ -1,0 +1,61 @@
+{% extends './loginbase.html' %}
+{% load static %}
+
+{% block title %}Signup{% endblock title %}
+
+
+{% block content %}
+    <div class="login-userheading">
+    <h3>Create an Account</h3>
+    </div>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-login">
+            <label>First Name</label>
+            <div class="form-addons">
+                {{ form.first_name }}
+            </div>
+        </div>
+        <div class="form-login">
+            <label>Last Name</label>
+            <div class="form-addons">
+                {{ form.last_name }}
+            </div>
+        </div>
+        <div class="form-login">
+        <label>Username</label>
+        <div class="form-addons">
+            {{ form.username }}
+        </div>
+        </div>
+        <div class="form-login">
+            <label>Email</label>
+            <div class="form-addons">
+                {{ form.email }}
+            </div>
+        </div>
+        <div class="form-login">
+        <label>Password</label>
+        <div class="pass-group">
+            {{ form.password1 }}
+        </div>
+        </div>
+        <div class="form-login">
+            <label>Confirm Password</label>
+            <div class="pass-group">
+                {{ form.password2 }}
+            </div>
+            </div>
+        <div class="form-login">
+            <button class="btn btn-login" type="submit">Sign Up</button>
+        </div>
+    </form>
+    <div class="signinform text-center">
+    <h4>Already a user? <a href="{% url 'login' %}" class="hover-a">Sign In</a></h4>
+    </div>
+{% endblock content %}
+
+{{ form.username.label_tag }}: {{ form.username }}<br>
+{{ form.email.label_tag }}: {{ form.email }}<br>
+{{ form.password1.label_tag }}: {{ form.password1 }}<br>
+{{ form.password2.label_tag }}: {{ form.password2 }}

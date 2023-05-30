@@ -1,0 +1,90 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="content">
+    <div class="page-header">
+    <div class="page-title">
+    <h4>Profile</h4>
+    <h6>User Profile</h6>
+    </div>
+    </div>
+    
+    <div class="card">
+    <div class="card-body">
+    <div class="profile-set">
+    <div class="profile-head">
+    </div>
+    <div class="profile-top">
+    <div class="profile-content">
+    <div class="profile-contentimg">
+    <img src="{{user.profile.image.url}}" onerror="this.src='{% static 'img/customer/customer5.jpg' %}';" alt="img" id="blah">
+    <div class="profileupload">
+    <input type="file" id="imgInp">
+    <a href="javascript:void(0);"><img src="{% static 'img/icons/edit-set.svg' %}" alt="img"></a>
+    </div>
+    </div>
+    <div class="profile-contentname">
+    <h2>{{user.first_name}} {{user.last_name}}</h2>
+    <h4>Updates Your Photo and Personal Details.</h4>
+    </div>
+    </div>
+    <div class="ms-auto">
+    <a href="javascript:void(0);" class="btn btn-submit me-2">Save</a>
+    <a href="javascript:void(0);" class="btn btn-cancel">Cancel</a>
+    </div>
+    </div>
+    </div>
+    <div class="row">
+    <div class="col-lg-6 col-sm-12">
+    <div class="form-group">
+    <label>First Name</label>
+    {% comment %} <input type="text" placeholder="{{user.first_name}}"> {% endcomment %}
+    {{user_form.first_name}}
+    </div>
+    </div>
+    <div class="col-lg-6 col-sm-12">
+    <div class="form-group">
+    <label>Last Name</label>
+    {{user_form.last_name}}
+    </div>
+    </div>
+    <div class="col-lg-6 col-sm-12">
+    <div class="form-group">
+    {{user_form.email}}
+    </div>
+    </div>
+    <div class="col-lg-6 col-sm-12">
+    <div class="form-group">
+    <label>Phone</label>
+    {{profile_form.phone}}
+    </div>
+    </div>
+    <div class="col-lg-6 col-sm-12">
+    <div class="form-group">
+    <label>User Name</label>
+    {{user_form.username}}
+    </div>
+    </div>
+    <div class="col-lg-6 col-sm-12">
+    <div class="form-group">
+    <label>Password</label>
+    <div class="pass-group">
+    {{user_form.password}}
+    </div>
+    </div>
+    </div>
+    <div class="col-12">
+    <a href="javascript:void(0);" class="btn btn-submit me-2">Submit</a>
+    <a href="javascript:void(0);" class="btn btn-cancel">Cancel</a>
+    </div>
+    </div>
+    </div>
+    </div>
+    
+
+</div>
+
+{% endblock content %}
+
+

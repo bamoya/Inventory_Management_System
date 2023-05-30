@@ -1,0 +1,19 @@
+{% extends 'partials/loginbase.html' %}
+{% block title %}Logout Page{% endblock %}
+{% comment %} {% load crispy_forms_tags %} {% endcomment %}
+{% load bootstrap4 %}
+
+{% block content %}
+<div class="container">
+    <div class="row mt-5">
+        <div class="col-md-6 offset-md-3">
+            <div class="border bg-white p-3">
+                <div class="alert alert-danger">
+                    <h4>You Logged Out</h4>
+                </div>
+                <a class="btn btn-info" href="{% url 'login' %}">Login</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

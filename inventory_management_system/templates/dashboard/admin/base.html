@@ -1,5 +1,7 @@
 {% load static %}
 
+{% if user.is_authenticated %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,6 +27,8 @@
 <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
+
+    
     <div id="global-loader">
     <div class="whirly-loader"> </div>
     </div>
@@ -69,7 +73,7 @@
         </div>
         </div>
         <hr class="m-0">
-        <a class="dropdown-item" href="profile.html"> <i class="me-2" data-feather="user"></i> My Profile</a>
+        <a class="dropdown-item" href="{% url 'profile' %}"> <i class="me-2" data-feather="user"></i> My Profile</a>
         <a class="dropdown-item" href="generalsettings.html"><i class="me-2" data-feather="settings"></i>Settings</a>
         <hr class="m-0">
         <a class="dropdown-item logout pb-0" href="{% url 'logout' %}"><img src="{% static 'img/icons/log-out.svg' %}" class="me-2" alt="img">Logout</a>
@@ -88,18 +92,23 @@
         </div>
 
         </div>
-        {% if user.is_authentificated %}
+
+        {% if user.is_superuser %}
         {% comment %} Side Bar Section {% endcomment %}
-        {% block sidebar %} {% endblock sidebar %}
+        {% block admin_sidebar %} {% endblock admin_sidebar %}
 
         {% comment %} Content Section {% endcomment %}
-        <div class="page-wrapper">
 
-            {% block content %} {% endblock content %}
-    
+        <div class="page-wrapper">
+        {% block admin_content %} {% endblock admin_content %}
+        
         </div>
+        {% endif %}
+        
+    
+        
     </div>
-        {% endif%}
+        
 
 
 <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
@@ -117,4 +126,10 @@
 <script src="{% static 'plugins/apexchart/chart-data.js' %}"></script>
 
 <script src="{% static 'js/script.js' %}"></script>
+
+
 </body>
+
+{% else %}
+{% url 'login' %}
+{% endif %}
