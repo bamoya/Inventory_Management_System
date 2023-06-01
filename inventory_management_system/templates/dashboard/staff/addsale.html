@@ -1,18 +1,18 @@
 {% extends 'partials/base.html' %}
 {% load static %}
-{% block title %}Add Purchase{% endblock title %}
+{% block title %}Add Sale{% endblock title %}
 
 {% block content %}
 <div class="content">
     <div class="page-header">
     <div class="page-title">
-    <h4>Add Purchase</h4>
+    <h4>Add Sale</h4>
     </div>
     </div>
     <div class="card">
     <div class="card-body">
 
-    {% if not supplier %}
+    {% if not customer %}
 
 
     <form method="get">
@@ -20,12 +20,12 @@
     <div class="row">
     <div class="col-lg-3 col-sm-6 col-12">
     <div class="form-group">
-    <label>Supplier Name</label>
+    <label>customer Name</label>
     <div class="row">
     <div class="col-lg-10 col-sm-10 col-10">
-    <select name="supplier" class="select" required>
-        {% for supplier in suppliers %}
-        <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+    <select name="customer" class="select" required>
+        {% for customer in customers %}
+        <option value="{{ customer.id }}">{{ customer.name }}</option>
         {% endfor %}
     </select>
     </div>
@@ -39,8 +39,8 @@
         <div class="row">
         <div class="col-lg-10 col-sm-10 col-10">
         <select name="status" class="select" required>
-            <option value="received">Received</option>
-            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+            <option value="unpaid">Unpaid</option>
         </select>
         </div>
         </div>
@@ -49,10 +49,10 @@
     
     <div class="col-lg-3 col-sm-6 col-12">
         <div class="form-group">
-        <label>Purchase Date </label>
+        <label>Sale Date </label>
         <div class="input-groupicon">
          
-        <input type="text" type="date" placeholder="YYYY-MM-DD" name ="date"  required>
+        <input type="text" type="date" placeholder="YYYY-MM-DD" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" name ="date" required>
                 
         <div class="addonset">
         <img src="{% static 'img/icons/calendars.svg' %}" alt="img">
@@ -76,8 +76,8 @@
     <div class="row">
         <div class="col-lg-3 col-sm-6 col-12">
             <div class="form-group">
-            <label>Supplier Name</label>
-            <input type="text" name="supplier" value="{{ supplier.name }}" readonly>
+            <label>Customer Name</label>
+            <input type="text" name="customer" value="{{ customer.name }}" readonly>
             </div>
         </div>
         <div class="col-lg-3 col-sm-6 col-12">
@@ -92,8 +92,6 @@
             <input type="text" name="date" value="{{ date }}" readonly>
             </div>
         </div>
-        
-           
     </div>    
        
 
@@ -108,7 +106,7 @@
     </tr>
     </thead>
     <tbody>
-        {% for product in supplier.product_set.all %}
+        {% for product in products %}
     <tr>
     <td >
     <input type="checkbox" name="id_{{ product.id }}" >
@@ -116,6 +114,7 @@
     </td>
     <td><input type="number" name="quantity_{{ product.id }}" value="1" min="1"></td>
     <td class="text-end">{{ product.price }}</td>
+
     </tr>
     {% endfor %}
     </tbody>
@@ -126,7 +125,7 @@
         <div class="col-lg-3 col-sm-6 col-12">
         <div class="col-lg-12">
             <button class="btn btn-submit me-2" type="submit">submit</button>
-            <a href="{% url 'dashboard:addpurchase' %}" class="btn btn-cancel">Cancel</a>
+            <a href="{% url 'dashboard:addsale' %}" class="btn btn-cancel">Cancel</a>
         </div>
         </div>
     </div>

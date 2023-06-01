@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>purchase order</title>
+</head>
+<body>
+    <h1>Create Purchase</h1>
+  {% if supplier %}
+    <form method="post">
+      {% csrf_token %}
+      <div>
+        <label for="supplier">Supplier:</label>
+        <input type="text" name="supplier" value="{{ supplier.name }}" readonly>
+      </div>
+      <div>
+        <label for="items">Items:</label>
+        <ul>
+          {% for product in supplier.product_set.all %}
+          <li name="item_{{ product.id }}">
+            <input type="checkbox" name="id_{{ product.id }}" >
+            {{ product.name }} - {{ product.price }}
+            <input type="number" name="quantity_{{ product.id }}" value="1" min="1">
+            <input type="number" name="price_{{ product.id }}" value="{{ product.price }}" min="0" step="0.01">
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      <button type="submit">Create Purchase</button>
+    </form>
+  {% else %}
+    <form method="get">
+      <div>
+        <label for="supplier">Supplier:</label>
+        <select name="supplier" required>
+          {% for supplier in suppliers %}
+            <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit">Select Supplier</button>
+    </form>
+    {% endif %}
+</body>
+</html>

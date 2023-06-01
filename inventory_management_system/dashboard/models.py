@@ -46,29 +46,32 @@ class Product(models.Model):
     def __str__(self):
         return self.name
     
-received_status = [('Received','Received'),('Pending', 'Pending')]
+received_status = [('received','received'),('pending', 'pending')]
 
 class PurchaseOrder(models.Model):
     order_number = models.CharField(unique=True,max_length=100, null=True)
-    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, null=True)
-    staff = models.ForeignKey(User,on_delete= models.CASCADE, null=True)
+    supplier = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True)
+    staff = models.ForeignKey(User,on_delete= models.SET_NULL, null=True)
     order_date = models.DateField(default=datetime.date.today,null=True)
     status = models.CharField(max_length=100, null=True,choices=received_status)
-
+    total_order_cost = models.DecimalField(max_digits=10, decimal_places=2,null=True)
     def save(self, *args, **kwargs):
         if not self.order_number:
             self.order_number = get_random_string(length=10)  # Generate a random string as the order number
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.order_number
+        return f'{self.supplier} - {self.total_order_cost}'
 
 class PurchaseOrderItem(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
-    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, null=True)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(null=True)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+
+    def __str__(self):
+        return f'{self.product} - {self.total_price}'
 
 class Stock(models.Model):
     product = models.OneToOneField(Product, on_delete=models.CASCADE, null=True)
@@ -78,13 +81,15 @@ class Stock(models.Model):
     def __str__(self):
         return f'{self.product} - {self.quantity}'
 
+
+payment_status = [('paid','paid'),('unpaid', 'unpaid')]
 class Sale(models.Model):
-    customer = models.ForeignKey(Customer,on_delete=models.CASCADE, null=True)
+    customer = models.ForeignKey(Customer,on_delete=models.SET_NULL, null=True)
     sale_number = models.CharField(unique=True,max_length=100, null=True)
-    staff = models.ForeignKey(User,on_delete= models.CASCADE, null=True)
+    staff = models.ForeignKey(User,on_delete= models.SET_NULL, null=True)
     sale_date = models.DateField(auto_now=True, null=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    payment_status = models.CharField(max_length=100, null=True)
+    payment_status = models.CharField(max_length=100, null=True,choices=payment_status)
 
     def save(self, *args, **kwargs):
         if not self.sale_number:
@@ -95,8 +100,11 @@ class Sale(models.Model):
         return f'{self.customer} - {self.total_amount}'
 
 class SaleItem(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     sale = models.ForeignKey(Sale, on_delete=models.CASCADE, null=True)
     quantity = models.PositiveIntegerField( null=True)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+
+    def __str__(self):
+        return f'{self.product} - {self.unit_price}'

@@ -1,6 +1,8 @@
 # forms.py
 from django import forms
 from .models import Category,Product,Supplier, Customer, PurchaseOrder, PurchaseOrderItem
+from django.forms import inlineformset_factory, modelformset_factory
+
 
 class CategoryForm(forms.ModelForm):
     class Meta:
@@ -24,12 +26,26 @@ class CustomerForm(forms.ModelForm):
 
 
 
+# class PurchaseOrderForm(forms.ModelForm):
+#     class Meta:
+#         model = PurchaseOrder
+#         fields = '__all__'  
+
+# class PurchaseOrderItemForm(forms.ModelForm):
+#     class Meta:
+#         model = PurchaseOrderItem
+#         fields = '__all__'  
+
 class PurchaseOrderForm(forms.ModelForm):
     class Meta:
         model = PurchaseOrder
-        fields = '__all__'  
+        fields = ['supplier', 'staff', 'order_date','status']
+
 
 class PurchaseOrderItemForm(forms.ModelForm):
     class Meta:
         model = PurchaseOrderItem
-        fields = '__all__'  
+        fields = ['product', 'quantity', 'unit_price']
+
+
+PurchaseOrderItemFormSet = modelformset_factory(PurchaseOrderItem, form=PurchaseOrderItemForm, extra=1)
