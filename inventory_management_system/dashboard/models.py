@@ -65,7 +65,7 @@ class PurchaseOrder(models.Model):
 
 class PurchaseOrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
-    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE)
+    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, null=True)
     quantity = models.PositiveIntegerField(null=True)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
