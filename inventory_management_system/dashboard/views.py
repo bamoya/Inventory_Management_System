@@ -4,11 +4,32 @@ from django.forms import modelformset_factory
 from django.contrib.auth.decorators import login_required
 from .forms import CategoryForm, ProductForm, SupplierForm, CustomerForm, PurchaseOrderForm, PurchaseOrderItemForm, SaleForm, SaleItemForm
 from .models import Product, Supplier, PurchaseOrder, PurchaseOrderItem, Customer, Sale, SaleItem, Category
+from django.db.models import Sum
 # Create your views here.
 
 @login_required
 def index(request):
-    return render(request,'dashboard/admin/admin.html')
+    products = Product.objects.order_by('-id')[:5]
+    suppliers = Supplier.objects.all().count()
+    customers = Customer.objects.all().count()
+    total_purchases = PurchaseOrder.objects.aggregate(Sum('total_order_cost'))['total_order_cost__sum'] or 0
+    total_sales = Sale.objects.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+    purchases_received = PurchaseOrder.objects.filter(status = 'received').count()
+    purchases_pending = PurchaseOrder.objects.filter(status = 'pending').count()
+    sales_paid = Sale.objects.filter(payment_status = 'paid').count()
+    sales_unpaid = Sale.objects.filter(payment_status = 'unpaid').count()
+    context ={
+        'suppliers' : suppliers,
+        'customers': customers,
+        'products' : products,
+        'sales_paid':sales_paid,
+        'sales_unpaid':sales_unpaid,
+        'purchases_received':purchases_received,
+        'purchases_pending' : purchases_pending,
+        'total_purchases' : total_purchases,
+        'total_sales' : total_sales,
+    } 
+    return render(request,'dashboard/admin/index.html',context=context)
 
 
 @login_required

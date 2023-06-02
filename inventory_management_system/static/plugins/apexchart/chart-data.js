@@ -1,6 +1,67 @@
-'use strict';$(document).ready(function(){function generateData(baseval,count,yrange){var i=0;var series=[];while(i<count){var x=Math.floor(Math.random()*(750-1+1))+1;;var y=Math.floor(Math.random()*(yrange.max-yrange.min+1))+yrange.min;var z=Math.floor(Math.random()*(75-15+1))+15;series.push([x,y,z]);baseval+=86400000;i++;}
-return series;}
-if($('#sales_chart').length>0){var columnCtx=document.getElementById("sales_chart"),columnConfig={colors:['#7638ff','#fda600'],series:[{name:"Received",type:"column",data:[70,150,80,180,150,175,201,60,200,120,190,160,50]},{name:"Pending",type:"column",data:[23,42,35,27,43,22,17,31,22,22,12,16,80]}],chart:{type:'bar',fontFamily:'Poppins, sans-serif',height:350,toolbar:{show:false}},plotOptions:{bar:{horizontal:false,columnWidth:'60%',endingShape:'rounded'},},dataLabels:{enabled:false},stroke:{show:true,width:2,colors:['transparent']},xaxis:{categories:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'],},yaxis:{title:{text:'$ (thousands)'}},fill:{opacity:1},tooltip:{y:{formatter:function(val){return "$ "+val+" thousands"}}}};var columnChart=new ApexCharts(columnCtx,columnConfig);columnChart.render();}
+'use strict';
+$(document).ready(
+    function(){
+        function generateData(baseval,count,yrange){
+            var i=0;var series=[];
+            while(i<count){
+                var x=Math.floor(Math.random()*(750-1+1))+1;;
+                var y=Math.floor(Math.random()*(yrange.max-yrange.min+1))+yrange.min;
+                var z=Math.floor(Math.random()*(75-15+1))+15;series.push([x,y,z]);baseval+=86400000;i++;}
+            return series;
+        }
+
+        if($('#sales_chart').length>0){
+            console.log('ready 1');
+            var columnCtx=document.getElementById("sales_chart");
+            var columnConfig={
+                colors:['#7638ff','#fda600'],
+                series:[{name:"Received",type:"column",data:[0,150,80,180,150,175,201,60,200,120,190,160,50]},{name:"Pending",type:"column",data:[23,42,35,27,43,22,17,31,22,22,12,16,80]}],
+                chart:{type:'bar',fontFamily:'Poppins, sans-serif',height:350,toolbar:{show:false}},
+                plotOptions:{bar:{horizontal:false,columnWidth:'60%',endingShape:'rounded'},},
+                dataLabels:{enabled:false},stroke:{show:true,width:2,colors:['transparent']},
+                xaxis:{categories:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'],},
+                yaxis:{title:{text:'$ (thousands)'}},
+                fill:{opacity:1},
+                tooltip:{y:{formatter:function(val){return "$ "+val+" thousands"}}}
+            };
+
+            var columnChart=new ApexCharts(columnCtx,columnConfig);
+            columnChart.render();
+        
+        }
+
+
+        if($('#sales_charts').length>0){
+            var options={
+                series:[{name:'Sales',data:[0,45,60,70,50,45,60,70],},{name:'Purchase',data:[-50,-54,-45,-35,-21,-54,-45,-35]}],
+                colors:['#28C76F','#EA5455'],
+                chart:{type:'bar',height:300,stacked:true,zoom:{enabled:true}},
+                responsive:[{breakpoint:280,options:{legend:{position:'bottom',offsetY:0}}}],
+                plotOptions:{bar:{horizontal:false,columnWidth:'20%',endingShape:'rounded'},},
+                xaxis:{categories:[' Jan ','feb','march','april','may','june','july','auguest'],},
+                legend:{position:'right',offsetY:40},
+                fill:{opacity:1}
+            };
+            var chart=new ApexCharts(document.querySelector("#sales_charts"),options);
+            chart.render();
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 if($('#invoice_chart').length>0){var pieCtx=document.getElementById("invoice_chart"),pieConfig={colors:['#7638ff','#ff737b','#fda600','#1ec1b0'],series:[55,40,20,10],chart:{fontFamily:'Poppins, sans-serif',height:350,type:'donut',},labels:['Paid','Unpaid','Overdue','Draft'],legend:{show:false},responsive:[{breakpoint:480,options:{chart:{width:200},legend:{position:'bottom'}}}]};var pieChart=new ApexCharts(pieCtx,pieConfig);pieChart.render();}
 if($('#s-line').length>0){var sline={chart:{height:350,type:'line',zoom:{enabled:false},toolbar:{show:false,}},dataLabels:{enabled:false},stroke:{curve:'straight'},series:[{name:"Desktops",data:[10,41,35,51,49,62,69,91,148]}],title:{text:'Product Trends by Month',align:'left'},grid:{row:{colors:['#f1f2f3','transparent'],opacity:0.5},},xaxis:{categories:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep'],}}
 var chart=new ApexCharts(document.querySelector("#s-line"),sline);chart.render();}
@@ -17,5 +78,8 @@ var chart=new ApexCharts(document.querySelector("#mixed-chart"),options);chart.r
 if($('#donut-chart').length>0){var donutChart={chart:{height:350,type:'donut',toolbar:{show:false,}},series:[44,55,41,17],responsive:[{breakpoint:480,options:{chart:{width:200},legend:{position:'bottom'}}}]}
 var donut=new ApexCharts(document.querySelector("#donut-chart"),donutChart);donut.render();}
 if($('#radial-chart').length>0){var radialChart={chart:{height:350,type:'radialBar',toolbar:{show:false,}},plotOptions:{radialBar:{dataLabels:{name:{fontSize:'22px',},value:{fontSize:'16px',},total:{show:true,label:'Total',formatter:function(w){return 249}}}}},series:[44,55,67,83],labels:['Apples','Oranges','Bananas','Berries'],}
-var chart=new ApexCharts(document.querySelector("#radial-chart"),radialChart);chart.render();}
-if($('#sales_charts').length>0){var options={series:[{name:'Sales',data:[50,45,60,70,50,45,60,70],},{name:'Purchase',data:[-21,-54,-45,-35,-21,-54,-45,-35]}],colors:['#28C76F','#EA5455'],chart:{type:'bar',height:300,stacked:true,zoom:{enabled:true}},responsive:[{breakpoint:280,options:{legend:{position:'bottom',offsetY:0}}}],plotOptions:{bar:{horizontal:false,columnWidth:'20%',endingShape:'rounded'},},xaxis:{categories:[' Jan ','feb','march','april','may','june','july','auguest'],},legend:{position:'right',offsetY:40},fill:{opacity:1}};var chart=new ApexCharts(document.querySelector("#sales_charts"),options);chart.render();}});
+var chart=new ApexCharts(document.querySelector("#radial-chart"),radialChart);chart.render();}}
+    
+);
+
+console.log('hello')
