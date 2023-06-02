@@ -1,0 +1,70 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block title %}Category List{% endblock title %}
+
+
+{% block content %}
+<div class="content">
+    <div class="page-header">
+    <div class="page-title">
+    <h4>Category List</h4>
+    <h6>Manage your categories</h6>
+    </div>
+    <div class="page-btn">
+    <a href="{% url 'dashboard:addcategory' %}" class="btn btn-added"><img src="{% static 'img/icons/plus.svg' %}" alt="img" class="me-1">Add New category</a>
+    </div> 
+    </div>
+    
+    <div class="card">
+    <div class="card-body">
+    <div class="table-top">
+    <div class="search-set">
+    <div class="search-input">
+    <a class="btn btn-searchset"><img src="{% static 'img/icons/search-white.svg' %}" alt="img"></a>
+    </div>
+    </div>
+   
+    </div>
+    
+    
+    
+    <div class="table-responsive">
+    <table class="table  datanew">
+    <thead>
+    <tr>
+    <th>Category Name</th>
+
+    <th>Description</th>
+    <th></th>
+    </tr>
+    </thead>
+    <tbody>
+        
+        {% for category in categories %}
+        <tr>
+            <td>{{category.name}}</td>
+
+            <td>{{category.description}}</td>
+            <td>
+                <a class="me-3" href="{% url 'dashboard:categorydetails' category.id %}">
+                <img src="{% static 'img/icons/eye.svg' %}" alt="img">
+                </a>
+                <a class="me-3" href="{% url 'dashboard:editcategory' category.id %}">
+                <img src="{% static 'img/icons/edit.svg' %}" alt="img">
+                </a>
+                <a href="{% url 'dashboard:deletecategory' category.id %}">
+                <img src="{% static 'img/icons/delete.svg' %}" alt="img">
+                </a>
+            </td>
+            
+        </tr>
+        {% endfor %}
+    </tbody> 
+    </table>
+    </div>
+    </div>
+    </div>
+    
+    </div>
+    
+{% endblock content %}

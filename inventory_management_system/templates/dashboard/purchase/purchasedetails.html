@@ -1,0 +1,91 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block title %}purchase Details{% endblock title %}
+
+{% block content %}
+
+<div class="content">
+    <div class="page-header">
+    <div class="page-title">
+    <h4>purchase Details</h4>
+    <h6>Full details of a purchase</h6>
+    </div>
+    </div>
+    
+    <div class="row" >
+        <div class="col-lg-8 col-sm-12">
+            <div class="card">
+            <div class="card-body">
+            <div class="productdetails">
+            <ul class="product-bar">
+            <li>
+            <h4>Purchase Reference</h4>
+            <h6>{{purchase.order_number}}</h6>
+            </li>
+            <li>
+            <h4>Supplier</h4>
+            <h6>{{purchase.supplier}}</h6>
+            </li>
+            <li>
+                <h4>Purchase Buyer</h4>
+                <h6>{{purchase.staff}}</h6>
+            </li>
+            <li>
+                <h4>Purchase Date</h4>
+                <h6>{{purchase.order_date}}</h6>
+                </li>
+            <li>
+                <h4>Total</h4>
+                <h6>{{purchase.total_order_cost}}</h6>
+            </li>
+        
+            </ul>
+            </div>
+            </div>
+            </div>
+            </div>
+   
+        <div class="col-lg-8 col-sm-12">
+        {% for item in items %}
+        <div class="card">
+        <div class="card-body">
+        
+        <div class="productdetails">
+        <ul class="product-bar">
+        <li>
+        <h4>Product Name</h4>
+        <h6>{{item.product}}</h6>
+        </li>
+        <li>
+        <h4>Quantity</h4>
+        <h6>{{item.quantity}}</h6>
+        </li>
+        <li>
+            <h4>Unit Price</h4>
+            <h6>{{item.product.price}}</h6>
+        </li>
+        <li>
+            <h4>Total Price</h4>
+            <h6>{{item.total_price}}</h6>
+            </li>
+    
+        </ul>
+        </div>
+        
+        </div>
+        </div>
+        {% endfor %}
+    
+    </div>
+
+
+    <div class="row" >
+        <div class="col-lg-12">
+            <a href="{% url 'dashboard:purchaselist' %}" class="btn btn-submit me-2">Back to list</a>
+            </div>
+        </div>
+    
+</div>
+</div>
+
+{% endblock content %}

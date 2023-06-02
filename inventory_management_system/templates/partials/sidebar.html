@@ -15,9 +15,9 @@
     <li class="submenu">
         <a href="javascript:void(0);"><img src="{% static 'img/icons/product.svg' %}" alt="img"><span> Product</span> <span class="menu-arrow"></span></a>
         <ul>
-        <li><a href="productlist.html">Product List</a></li>
+        <li><a href="{% url 'dashboard:productlist' %}">Product List</a></li>
         <li><a href="{% url 'dashboard:addproduct' %}">Add Product</a></li>
-        <li><a href="categorylist.html">Category List</a></li>
+        <li><a href="{% url 'dashboard:categorylist' %}">Category List</a></li>
         <li><a href="{% url 'dashboard:addcategory' %}">Add Category</a></li>
         </ul>
     </li>
@@ -25,7 +25,7 @@
     <li class="submenu">
         <a href="javascript:void(0);"><img src="{% static 'img/icons/sales1.svg' %}" alt="img"><span> Sales</span> <span class="menu-arrow"></span></a>
         <ul>
-        <li><a href="saleslist.html">Sales List</a></li>
+        <li><a href="{% url 'dashboard:salelist' %}">Sales List</a></li>
         <li><a href="{% url 'dashboard:addsale' %}">New Sales</a></li>
         </ul>
     </li>
@@ -33,7 +33,7 @@
     <li class="submenu">
         <a href="javascript:void(0);"><img src="{% static 'img/icons/purchase1.svg' %}" alt="img"><span> Purchase</span> <span class="menu-arrow"></span></a>
         <ul>
-        <li><a href="purchaselist.html">Purchase List</a></li>
+        <li><a href="{% url 'dashboard:purchaselist' %}">Purchase List</a></li>
         <li><a href="{% url 'dashboard:addpurchase' %}">Add Purchase</a></li>
         </ul>
     </li>
@@ -41,9 +41,9 @@
     <li class="submenu">
         <a href="javascript:void(0);"><img src="{% static 'img/icons/users1.svg' %}" alt="img"><span> People</span> <span class="menu-arrow"></span></a>
         <ul>
-        <li><a href="customerlist.html">Customer List</a></li>
+        <li><a href="{% url 'dashboard:customerlist' %}">Customer List</a></li>
         <li><a href="{% url 'dashboard:addcustomer' %}">Add Customer </a></li>
-        <li><a href="supplierlist.html">Supplier List</a></li>
+        <li><a href="{% url 'dashboard:supplierlist' %}">Supplier List</a></li>
         <li><a href="{% url 'dashboard:addsupplier' %}">Add Supplier </a></li>  
         </ul>
     </li>

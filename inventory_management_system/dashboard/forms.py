@@ -1,6 +1,6 @@
 # forms.py
 from django import forms
-from .models import Category,Product,Supplier, Customer, PurchaseOrder, PurchaseOrderItem
+from .models import Category,Product,Supplier, Customer, PurchaseOrder, PurchaseOrderItem,Sale, SaleItem
 from django.forms import inlineformset_factory, modelformset_factory
 
 
@@ -13,6 +13,12 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = '__all__'
+        widgets  = {
+            'category' : forms.Select(attrs={'class': 'select'}),
+            'supplier' : forms.Select(attrs={'class': 'select'}),
+            'quantity' : forms.TextInput(),
+            'price' : forms.TextInput(),
+        }
 
 class SupplierForm(forms.ModelForm):
     class Meta:
@@ -45,7 +51,25 @@ class PurchaseOrderForm(forms.ModelForm):
 class PurchaseOrderItemForm(forms.ModelForm):
     class Meta:
         model = PurchaseOrderItem
-        fields = ['product', 'quantity', 'unit_price']
+        fields = ['product', 'quantity']
 
 
-PurchaseOrderItemFormSet = modelformset_factory(PurchaseOrderItem, form=PurchaseOrderItemForm, extra=1)
+class SaleForm(forms.ModelForm):
+    class Meta:
+        model = Sale
+        fields = '__all__'
+        widgets  = {
+            'customer' : forms.Select(attrs={'class': 'select'}),
+            'staff' : forms.Select(attrs={'class': 'select'}),
+            'payment_status' : forms.Select(attrs={'class': 'select'}),
+        }
+
+class SaleItemForm(forms.ModelForm):
+    class Meta:
+        model = SaleItem
+        fields = ['product', 'quantity']
+        widgets  = {
+            'product' : forms.Select(attrs={'class': 'select'}),
+            'quantity' : forms.TextInput(),
+        }
+    

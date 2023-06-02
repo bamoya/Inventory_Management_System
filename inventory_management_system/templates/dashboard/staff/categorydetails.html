@@ -1,0 +1,42 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block title %}Category Details{% endblock title %}
+
+{% block content %}
+
+<div class="content">
+    <div class="page-header">
+    <div class="page-title">
+    <h4>Category Details</h4>
+    <h6>Full details of a category</h6>
+    </div>
+    </div>
+    
+    <div class="row" >
+    <div class="col-lg-8 col-sm-12">
+    <div class="card">
+    <div class="card-body">
+    <div class="productdetails">
+    <ul class="product-bar">
+    <li>
+    <h4>category</h4>
+    <h6>{{category.name}}</h6>
+    </li>
+    <li>
+    <h4>Description</h4>
+    <h6>{{category.description}}</h6>
+    </li>
+    </ul>
+    </div>
+    </div>
+    </div>
+    </div>
+    <div class="col-lg-12">
+        <a href="{% url 'dashboard:categorylist' %}" class="btn btn-submit me-2">Back to list</a>
+        </div>
+    </div>
+   
+    
+</div>
+
+{% endblock content %}

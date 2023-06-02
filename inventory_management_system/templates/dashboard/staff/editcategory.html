@@ -1,0 +1,57 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block title %}Edit Category{% endblock title %}
+
+
+{% block content %}
+
+<div class="content">
+    <div class="page-header">
+    <div class="page-title">
+    <h4>Category Edit</h4>
+    <h6>Update your category</h6>
+    </div>
+    </div>
+    
+    <div class="card">
+    <div class="card-body">
+    <div class="row">
+
+    <form method='post' class='row'>
+    {% csrf_token %}
+    <div class="col-lg-3 col-sm-6 col-12">
+    <div class="form-group">
+    <label>Category Name</label>
+        {{form.name}}
+    </div>
+    </div>
+    
+    
+    
+
+   
+    
+    <div class="col-lg-12">
+    <div class="form-group">
+    <label>Description</label>
+    {{form.description}}
+    </div>
+    </div>
+    
+    
+    
+    
+    <div class="col-lg-12">
+    <button href="javascript:void(0);" class="btn btn-submit me-2">Update</button>
+    <a href="{% url 'dashboard:categorylist' %}" class="btn btn-cancel">Cancel</a>
+    </div>
+    </form>
+    </div>
+
+
+    </div>
+    </div>
+    
+    </div>
+
+{% endblock content %}

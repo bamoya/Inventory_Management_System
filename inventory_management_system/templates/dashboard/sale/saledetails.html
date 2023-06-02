@@ -1,0 +1,91 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block title %}Sale Details{% endblock title %}
+
+{% block content %}
+
+<div class="content">
+    <div class="page-header">
+    <div class="page-title">
+    <h4>Sale Details</h4>
+    <h6>Full details of a sale</h6>
+    </div>
+    </div>
+    
+    <div class="row" >
+        <div class="col-lg-8 col-sm-12">
+            <div class="card">
+            <div class="card-body">
+            <div class="productdetails">
+            <ul class="product-bar">
+            <li>
+            <h4>sale Reference</h4>
+            <h6>{{sale.sale_number}}</h6>
+            </li>
+            <li>
+            <h4>Cusomer</h4>
+            <h6>{{sale.customer}}</h6>
+            </li>
+            <li>
+                <h4>sale Biller</h4>
+                <h6>{{sale.staff}}</h6>
+            </li>
+            <li>
+                <h4>sale Date</h4>
+                <h6>{{sale.sale_date}}</h6>
+                </li>
+            <li>
+                <h4>total</h4>
+                <h6>{{sale.total_amount}}</h6>
+            </li>
+        
+            </ul>
+            </div>
+            </div>
+            </div>
+            </div>
+   
+        <div class="col-lg-8 col-sm-12">
+        {% for item in items %}
+        <div class="card">
+        <div class="card-body">
+        
+        <div class="productdetails">
+        <ul class="product-bar">
+        <li>
+        <h4>Product Name</h4>
+        <h6>{{item.product}}</h6>
+        </li>
+        <li>
+        <h4>Quantity</h4>
+        <h6>{{item.quantity}}</h6>
+        </li>
+        <li>
+            <h4>Unit Price</h4>
+            <h6>{{item.product.price}}</h6>
+        </li>
+        <li>
+            <h4>Total Price</h4>
+            <h6>{{item.total_price}}</h6>
+            </li>
+    
+        </ul>
+        </div>
+        
+        </div>
+        </div>
+        {% endfor %}
+    
+    </div>
+
+
+    <div class="row" >
+        <div class="col-lg-12">
+            <a href="{% url 'dashboard:salelist' %}" class="btn btn-submit me-2">Back to list</a>
+            </div>
+        </div>
+    
+</div>
+</div>
+
+{% endblock content %}

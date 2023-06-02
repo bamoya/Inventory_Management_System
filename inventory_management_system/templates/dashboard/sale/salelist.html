@@ -1,0 +1,79 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block title %}Sale List{% endblock title %}
+
+
+{% block content %}
+<div class="content">
+    <div class="page-header">
+    <div class="page-title">
+    <h4>Sale List</h4>
+    <h6>Manage your sales</h6>
+    </div>
+    <div class="page-btn">
+    <a href="{% url 'dashboard:addsale' %}" class="btn btn-added"><img src="{% static 'img/icons/plus.svg' %}" alt="img" class="me-1">Add New sale</a>
+    </div> 
+    </div>
+    
+    <div class="card">
+    <div class="card-body">
+    <div class="table-top">
+    <div class="search-set">
+    <div class="search-input">
+    <a class="btn btn-searchset"><img src="{% static 'img/icons/search-white.svg' %}" alt="img"></a>
+    </div>
+    </div>
+   
+    </div>
+    
+    
+    
+    <div class="table-responsive">
+    <table class="table  datanew">
+    <thead>
+    <tr>
+    <th>Sale Reference</th>
+    <th>Customer Name</th>
+    <th>Date</th>
+    <th>Total</th>
+    <th>Status</th>
+    
+    <th>Biller</th>
+    <th></th>
+    </tr>
+    </thead>
+    <tbody>
+        
+        {% for sale in sales %}
+        <tr>
+            <td>{{sale.sale_number}}</td>
+            <td>{{sale.customer}}</td>
+            
+            <td>{{sale.sale_date}}</td>
+            <td>{{sale.total_amount}}</td>
+            <td>{{sale.payment_status}}</td>
+            <td>{{sale.staff}}</td>
+            <td>
+                <a class="me-3" href="{% url 'dashboard:saledetails' sale.id %}">
+                <img src="{% static 'img/icons/eye.svg' %}" alt="img">
+                </a>
+            
+                <a class="me-3" href="{% url 'dashboard:editsale' sale.id %}">
+                <img src="{% static 'img/icons/edit.svg' %}" alt="img">
+                </a>
+                <a href="{% url 'dashboard:deletesale' sale.id %}">
+                <img src="{% static 'img/icons/delete.svg' %}" alt="img"> 
+                </a>
+            </td>
+            
+        </tr>
+        {% endfor %}
+    </tbody> 
+    </table>
+    </div>
+    </div>
+    </div>
+    
+    </div>
+    
+{% endblock content %}

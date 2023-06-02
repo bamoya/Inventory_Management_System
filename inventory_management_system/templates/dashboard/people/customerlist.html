@@ -1,0 +1,77 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block title %}Customer List{% endblock title %}
+
+
+{% block content %}
+<div class="content">
+    <div class="page-header">
+    <div class="page-title">
+    <h4>Customer List</h4>
+    <h6>Manage your customers</h6>
+    </div>
+    <div class="page-btn">
+    <a href="{% url 'dashboard:addcustomer' %}" class="btn btn-added"><img src="{% static 'img/icons/plus.svg' %}" alt="img" class="me-1">Add New customer</a>
+    </div> 
+    </div>
+    
+    <div class="card">
+    <div class="card-body">
+    <div class="table-top">
+    <div class="search-set">
+    <div class="search-input">
+    <a class="btn btn-searchset"><img src="{% static 'img/icons/search-white.svg' %}" alt="img"></a>
+    </div>
+    </div>
+   
+    </div>
+    
+    
+    
+    <div class="table-responsive">
+    <table class="table  datanew">
+    <thead>
+    <tr>
+    <th>Customer</th>
+    <th>Email</th>
+    <th>Phone</th>
+    <th>Address</th>
+    <th>Description</th>
+    
+    <th></th>
+    </tr>
+    </thead>
+    <tbody>
+        
+        {% for customer in customers %}
+        <tr>
+            <td>{{customer.name}}</td>
+            <td>{{customer.email}}</td>
+            
+            <td>{{customer.phone}}</td>
+            <td>{{customer.address}}</td>
+            <td>{{customer.description}}</td>
+            <td>
+                <a class="me-3" href="{% url 'dashboard:customerdetails' customer.id %}">
+                <img src="{% static 'img/icons/eye.svg' %}" alt="img">
+                </a>
+            
+                {% comment %} <a class="me-3" href="{% url 'dashboard:editcustomer' customer.id %}">
+                <img src="{% static 'img/icons/edit.svg' %}" alt="img">
+                </a> {% endcomment %}
+                <a href="{% url 'dashboard:deletecustomer' customer.id %}">
+                <img src="{% static 'img/icons/delete.svg' %}" alt="img"> 
+                </a>
+            </td>
+            
+        </tr>
+        {% endfor %}
+    </tbody> 
+    </table>
+    </div>
+    </div>
+    </div>
+    
+    </div>
+    
+{% endblock content %}

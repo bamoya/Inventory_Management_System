@@ -1,0 +1,79 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block title %}purchase List{% endblock title %}
+
+
+{% block content %}
+<div class="content">
+    <div class="page-header">
+    <div class="page-title">
+    <h4>purchase List</h4>
+    <h6>Manage your purchases</h6>
+    </div>
+    <div class="page-btn">
+    <a href="{% url 'dashboard:addpurchase' %}" class="btn btn-added"><img src="{% static 'img/icons/plus.svg' %}" alt="img" class="me-1">Add New purchase</a>
+    </div> 
+    </div>
+    
+    <div class="card">
+    <div class="card-body">
+    <div class="table-top">
+    <div class="search-set">
+    <div class="search-input">
+    <a class="btn btn-searchset"><img src="{% static 'img/icons/search-white.svg' %}" alt="img"></a>
+    </div>
+    </div>
+   
+    </div>
+    
+    
+    
+    <div class="table-responsive">
+    <table class="table  datanew">
+    <thead>
+    <tr>
+    <th>Purchase Reference</th>
+    <th>Supplier Name</th>
+    <th>Date</th>
+    <th>Total</th>
+    <th>Status</th>
+    
+    <th>Buyer</th>
+    <th></th>
+    </tr>
+    </thead>
+    <tbody>
+        
+        {% for purchase in purchases %}
+        <tr>
+            <td>{{purchase.order_number}}</td>
+            <td>{{purchase.supplier}}</td>
+            
+            <td>{{purchase.order_date}}</td>
+            <td>{{purchase.total_order_cost}}</td>
+            <td>{{purchase.status}}</td>
+            <td>{{purchase.staff}}</td>
+            <td>
+                <a class="me-3" href="{% url 'dashboard:purchasedetails' purchase.id %}">
+                <img src="{% static 'img/icons/eye.svg' %}" alt="img">
+                </a>
+            
+                {% comment %} <a class="me-3" href="{% url 'dashboard:editpurchase' purchase.id %}">
+                <img src="{% static 'img/icons/edit.svg' %}" alt="img">
+                </a> {% endcomment %}
+                <a href="{% url 'dashboard:deletepurchase' purchase.id %}">
+                <img src="{% static 'img/icons/delete.svg' %}" alt="img"> 
+                </a>
+            </td>
+            
+        </tr>
+        {% endfor %}
+    </tbody> 
+    </table>
+    </div>
+    </div>
+    </div>
+    
+    </div>
+    
+{% endblock content %}

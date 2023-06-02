@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.forms import modelformset_factory
 from django.contrib.auth.decorators import login_required
-from .forms import CategoryForm, ProductForm, SupplierForm, CustomerForm, PurchaseOrderForm, PurchaseOrderItemForm, PurchaseOrderItemFormSet
-from .models import Product, Supplier, PurchaseOrder, PurchaseOrderItem, Customer, Sale, SaleItem
+from .forms import CategoryForm, ProductForm, SupplierForm, CustomerForm, PurchaseOrderForm, PurchaseOrderItemForm, SaleForm, SaleItemForm
+from .models import Product, Supplier, PurchaseOrder, PurchaseOrderItem, Customer, Sale, SaleItem, Category
 # Create your views here.
 
 @login_required
@@ -71,7 +72,6 @@ def add_product(request):
 
 
 @login_required
-
 def add_purchase(request):
     if request.method == 'POST':
         # Retrieve the form data
@@ -87,37 +87,33 @@ def add_purchase(request):
             staff = staff,
             order_date = purchase_date,
             status = status,
-            total_order_cost=0
         )
         # Add the purchase items
-        total_order_cost = 0
+
         for key, value in request.POST.items():
             if key.startswith('id_') and value == 'on':
                 # The item was selected, so extract the ID and quantity
             
                 product_id = key.split('_')[1]
                 quantity = int(request.POST.get(f'quantity_{product_id}', 1))
-                price = float(request.POST.get(f'price_{product_id}', 0))
+                # price = float(request.POST.get(f'price_{product_id}', 0))
                
 
-                total_price = quantity * price
                 product = Product.objects.get(id=product_id)
                 purchase_item = PurchaseOrderItem.objects.create(
                     purchase_order=purchase,
                     product=product,
                     quantity=quantity,
-                    unit_price=price,
-                    total_price= total_price,
                 )
                 purchase_item.save()
-                total_order_cost += total_price
+
 
         # Update the total cost of the purchase
-        purchase.total_order_cost = total_order_cost
+  
         purchase.save()
 
         # Redirect to the purchase list page
-        return redirect('dashboard:index')
+        return redirect('dashboard:purchaselist')
     else:
         # Retrieve the suppliers from the database
         suppliers = Supplier.objects.all()
@@ -148,7 +144,7 @@ def add_purchase(request):
             return render(request, 'dashboard/staff/addpurchase.html', context)
 
 
-
+@login_required
 def add_sale(request):
     if request.method == 'POST':
         # Retrieve the form data
@@ -163,12 +159,11 @@ def add_sale(request):
             customer=customer,
             staff = staff,
             sale_date = sale_date,
-            total_amount=0,
             payment_status = payment_status
         )
         # Add the purchase items
 
-        total_amount = 0
+
         for key, value in request.POST.items():
             if key.startswith('id_') and value == 'on':
                 # The item was selected, so extract the ID and quantity
@@ -178,21 +173,17 @@ def add_sale(request):
                 sale_date = int(request.POST.get(f'quantity_{product_id}', 1))
                 payment_status = int(request.POST.get(f'quantity_{product_id}', 1))
                 product = Product.objects.get(id=product_id)
-                price = product.price
-                total_price = quantity * price
 
                 sale_item = SaleItem.objects.create(
                     product=product,
                     sale = sale,
                     quantity=quantity,
-                    unit_price=price,
-                    total_price= total_price,
+
                 )
                 sale_item.save()
-                total_amount += total_price
+
 
         # Update the total cost of the purchase
-        sale.total_amount = total_amount
         sale.save()
 
         # Redirect to the purchase list page
@@ -226,3 +217,224 @@ def add_sale(request):
 
 
             return render(request, 'dashboard/staff/addsale.html', context)
+        
+
+# ----------------------- product views ---------------------------
+
+def productlist(request):
+    products = Product.objects.all()
+    categories = Category.objects.all()
+    context = {
+        'products' : products,
+        'categories' : categories,
+    }
+    return render(request,'dashboard/staff/productlist.html', context)
+
+
+def productdetails(request, pk):
+    product = Product.objects.get(id=pk)
+    context = {
+        'product' : product,
+    }
+    return render(request,'dashboard/staff/productdetails.html', context)
+
+def delete_product(request, pk):
+    product = Product.objects.get(id=pk)
+    if request.method == 'POST':
+        product.delete()
+        return redirect('dashboard:productlist')
+    return render(request, 'dashboard/staff/deleteproduct.html')
+
+
+def edit_product(request, pk):
+    product = Product.objects.get(id=pk)
+    if request.method == 'POST':
+        form = ProductForm(request.POST, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect('dashboard:productlist')
+        else : print('form not valid')
+    else :
+        form = ProductForm(instance=product)
+    context = {
+        'form' : form,
+    }
+
+    return render(request,'dashboard/staff/editproduct.html', context)
+
+# ----------------------- category views ---------------------------
+
+def category_list(request):
+    categories = Category.objects.all()
+    context = {
+        'categories' : categories,
+    }
+    return render(request,'dashboard/staff/categorylist.html',context= context)
+
+
+def category_details(request, pk):
+    category = Category.objects.get(id=pk)
+    context = {
+        'category' : category,
+    }
+    return render(request,'dashboard/staff/categorydetails.html', context)
+
+def delete_category(request, pk):
+    category = Category.objects.get(id=pk)
+    if request.method == 'POST':
+        category.delete()
+        return redirect('dashboard:categorylist')
+    return render(request, 'dashboard/staff/deletecategory.html')
+
+
+def edit_category(request, pk):
+    category = Category.objects.get(id=pk)
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            return redirect('dashboard:categorylist')
+        else : print('form not valid')
+    else :
+        form = ProductForm(instance=category)
+    context = {
+        'form' : form,
+    }
+
+    return render(request,'dashboard/staff/editcategory.html', context)
+
+
+
+# -------------------Sale View---------------------------
+
+def sale_list(request):
+    sales = Sale.objects.all()
+    context = {
+        'sales' : sales,
+
+    }
+    return render(request,'dashboard/sale/salelist.html', context)
+
+def sale_details(request, pk):
+    sale = Sale.objects.get(id=pk)
+    sale_items = SaleItem.objects.filter(sale=sale)
+    context = {
+        'sale' : sale,
+        'items' : sale_items,
+    }
+    return render(request,'dashboard/sale/saledetails.html', context)
+
+def delete_sale(request, pk):
+    sale = Sale.objects.get(id=pk)
+    if request.method == 'POST':
+        sale.delete()
+        return redirect('dashboard:salelist')
+    return render(request, 'dashboard/sale/deletesale.html')
+
+SaleItemFormSet = modelformset_factory(SaleItem, fields=('product', 'quantity'))
+
+
+def edit_sale(request, pk):
+    sale = Sale.objects.get(id=pk)
+    items = SaleItem.objects.filter(sale=sale) 
+    if request.method == 'POST':
+        sale_form = SaleForm(request.POST, instance=sale)
+        for item in items :
+            form_item =  SaleItemForm(request.POST, instance=item)
+            if form_item.is_valid():
+                form_item.save()
+            else : 
+                print('form 1 not valid')
+
+        if sale_form.is_valid():
+            sale_form.save()
+            return redirect('dashboard:salelist')
+        else : print('form 2 not valid')
+    else :
+        sale_form = SaleForm(instance=sale)
+        item_form = SaleItemFormSet(queryset=items)
+    context = {
+        'sale_form' : sale_form,
+        'item_form' : item_form,
+    }
+    print('--------------------------------------------------',item_form)
+    return render(request,'dashboard/sale/editsale.html', context)
+
+
+
+# --------------------Purchase Views---------------------------------------
+
+def purchase_list(request):
+    purchases = PurchaseOrder.objects.all()
+    context = {
+        'purchases' : purchases,
+
+    }
+    return render(request,'dashboard/purchase/purchaselist.html', context)
+
+def purchase_details(request, pk):
+    purchase = PurchaseOrder.objects.get(id=pk)
+    purchase_items = PurchaseOrderItem.objects.filter(purchase_order=purchase)
+    context = {
+        'purchase' : purchase,
+        'items' : purchase_items,
+    }
+    return render(request,'dashboard/purchase/purchasedetails.html', context)
+
+def delete_purchase(request, pk):
+    purchase = PurchaseOrder.objects.get(id=pk)
+    if request.method == 'POST':
+        purchase.delete()
+        return redirect('dashboard:purchaselist')
+    return render(request, 'dashboard/purchase/deletepurchase.html')
+
+
+
+# -------------------------------- Customer View ---------------------------
+
+def customer_list(request):
+    customers = Customer.objects.all()
+    context = {
+        'customers' : customers,
+
+    }
+    return render(request,'dashboard/people/customerlist.html', context)
+
+def customer_details(request, pk):
+    customer = Customer.objects.get(id=pk)
+    context = {
+        'customer' : customer,
+    }
+    return render(request,'dashboard/people/customerdetails.html', context)
+
+def delete_customer(request, pk):
+    customer = Customer.objects.get(id=pk)
+    if request.method == 'POST':
+        customer.delete()
+        return redirect('dashboard:customerlist')
+    return render(request, 'dashboard/people/deletecustomer.html')
+
+
+# -------------------------------- Customer View ---------------------------
+
+def supplier_list(request):
+    suppliers = Supplier.objects.all()
+    context = {
+        'suppliers' : suppliers,
+
+    }
+    return render(request,'dashboard/people/supplierlist.html', context)
+
+def supplier_details(request, pk):
+    supplier = Supplier.objects.get(id=pk)
+    context = {
+        'supplier' : supplier,
+    }
+    return render(request,'dashboard/people/supplierdetails.html', context)
+
+def delete_supplier(request, pk):
+    supplier = Supplier.objects.get(id=pk)
+    if request.method == 'POST':
+        supplier.delete()
+        return redirect('dashboard:supplierlist')
+    return render(request, 'dashboard/people/deletesupplier.html')
