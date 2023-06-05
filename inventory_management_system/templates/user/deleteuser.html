@@ -1,0 +1,38 @@
+
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block title %}Delete User{% endblock title %}
+
+{% block content %}
+
+<div class="content">
+    <div class="page-header">
+    <div class="page-title">
+    <h4>Delete User</h4>
+    </div>
+    </div>
+    
+    <div class="row" >
+    <div class="col-lg-8 col-sm-12">
+    <div class="card">
+    <div class="card-body">
+        <h3>Delete User</h3>
+        <hr>
+        <div class="alret alret-danger">
+            <h4>Are you sure you want to delete?</h4>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <a href="{% url 'userlist' %}" class="btn btn-cancel">Cancel</a>
+            <input type="submit" class="btn btn-submit me-2" value="confirm">
+        </form>
+    </div>
+    </div>
+    </div>
+    
+    </div>
+    
+</div>
+
+
+{% endblock content %}

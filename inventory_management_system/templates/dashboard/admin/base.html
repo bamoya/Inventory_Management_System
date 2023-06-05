@@ -127,7 +127,13 @@
 
 <script src="{% static 'js/script.js' %}"></script>
 
-
+<script>
+    {% if message %}
+    alert('{{ message }}');
+    console.log('error');
+    {% endif %}
+    
+</script>
 </body>
 
 {% else %}

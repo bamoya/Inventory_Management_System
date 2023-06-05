@@ -44,4 +44,8 @@ urlpatterns = [
     path('supplier/deletesupplier/<int:pk>', views.delete_supplier, name='deletesupplier'),
 
 
+
+
+
+
 ]

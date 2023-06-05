@@ -49,6 +49,18 @@
     {{form.quantity}}
     </div>
     </div>
+    <div class="col-lg-3 col-sm-6 col-12">
+        <div class="form-group">
+        <label>Min Quantity</label>
+        {{form.min_quantity}}
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-6 col-12">
+        <div class="form-group">
+        <label>Max Quantity</label>
+        {{form.max_quantity}}
+        </div>
+    </div>
     <div class="col-lg-12">
     <div class="form-group">
     <label>Description</label>
@@ -59,7 +71,7 @@
 
     <div class="col-lg-12">
     <button type="submit" class="btn btn-submit me-2">Submit</button>
-    <a href="productlist.html" class="btn btn-cancel">Cancel</a>
+    <a href="{% url 'dashboard:productlist' %}" class="btn btn-cancel">Cancel</a>
     </form>
     </div>
     </div>

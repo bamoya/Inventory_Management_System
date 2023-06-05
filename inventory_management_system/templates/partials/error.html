@@ -1,0 +1,32 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block title %}Error{% endblock title %}
+
+{% block content %}
+
+<div class="content">
+    <div class="page-header">
+    <div class="page-title">
+    <h4>Error</h4>
+    
+    </div>
+    </div>
+    
+    <div class="row" >
+    <div class="col-lg-8 col-sm-12">
+    <div class="card">
+    <div class="card-body">
+        <div class="alret alret-danger">
+            <h4>{{message}}</h4>
+        </div>
+        <a onClick="window.history.back()" class="btn btn-cancel">Back</a>
+    </div>
+    </div>
+    </div>
+    
+    </div>
+    
+</div>
+
+
+{% endblock content %}

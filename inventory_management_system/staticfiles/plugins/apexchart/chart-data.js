@@ -11,11 +11,11 @@ $(document).ready(
         }
 
         if($('#sales_chart').length>0){
-            console.log('ready 2');
+            console.log('ready 1');
             var columnCtx=document.getElementById("sales_chart");
             var columnConfig={
                 colors:['#7638ff','#fda600'],
-                series:[{name:"Received",type:"column",data:[10,20,0,0,0,0,201,60,200,120,190,160,50]},{name:"Pending",type:"column",data:[23,42,35,27,43,22,17,31,22,22,12,16,80]}],
+                series:[{name:"Received",type:"column",data:[0,150,80,180,150,175,201,60,200,120,190,160,50]},{name:"Pending",type:"column",data:[23,42,35,27,43,22,17,31,22,22,12,16,80]}],
                 chart:{type:'bar',fontFamily:'Poppins, sans-serif',height:350,toolbar:{show:false}},
                 plotOptions:{bar:{horizontal:false,columnWidth:'60%',endingShape:'rounded'},},
                 dataLabels:{enabled:false},stroke:{show:true,width:2,colors:['transparent']},

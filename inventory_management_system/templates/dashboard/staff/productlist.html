@@ -46,7 +46,7 @@
             <td>{{product.name}}</td>
             <td>{{product.category}}</td>
             <td>{{product.price}}</td>
-            <td>{{product.quantity}}</td>
+            <td>{{product.stock.quantity}}</td>
             <td>
             <a class="me-3" href="{% url 'dashboard:productdetails' product.id %}">
             <img src="{% static 'img/icons/eye.svg' %}" alt="img">

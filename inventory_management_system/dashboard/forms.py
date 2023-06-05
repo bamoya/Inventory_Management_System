@@ -1,7 +1,6 @@
 # forms.py
 from django import forms
-from .models import Category,Product,Supplier, Customer, PurchaseOrder, PurchaseOrderItem,Sale, SaleItem
-from django.forms import inlineformset_factory, modelformset_factory
+from .models import Category,Product,Supplier, Customer, PurchaseOrder, PurchaseOrderItem,Sale, SaleItem, Stock
 
 
 class CategoryForm(forms.ModelForm):
@@ -9,15 +8,44 @@ class CategoryForm(forms.ModelForm):
         model = Category
         fields = ['name', 'description']
 
-class ProductForm(forms.ModelForm):
+class CreateProductForm(forms.ModelForm):
+    quantity = forms.IntegerField(widget=forms.TextInput()) 
     class Meta:
         model = Product
         fields = '__all__'
         widgets  = {
             'category' : forms.Select(attrs={'class': 'select'}),
             'supplier' : forms.Select(attrs={'class': 'select'}),
-            'quantity' : forms.TextInput(),
             'price' : forms.TextInput(),
+            'min_quantity' : forms.TextInput(),
+            'max_quantity' : forms.TextInput(),
+        }
+    def save(self, commit=True):
+        product = super().save(commit=False)
+        quantity = self.cleaned_data['quantity']
+        
+        if commit:
+            product.save()
+            stock = Stock.objects.create(product=product,quantity=quantity)
+            stock.save()
+        return product
+class EditProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = '__all__'
+        widgets  = {
+            'category' : forms.Select(attrs={'class': 'select'}),
+            'supplier' : forms.Select(attrs={'class': 'select'}),
+            'price' : forms.TextInput(),
+            'min_quantity' : forms.TextInput(),
+            'max_quantity' : forms.TextInput(),
+        }
+class StockForm(forms.ModelForm):
+    class Meta: 
+        model= Stock
+        fields = ['quantity']
+        widgets  = {
+            'quantity' : forms.TextInput(),
         }
 
 class SupplierForm(forms.ModelForm):
@@ -32,15 +60,6 @@ class CustomerForm(forms.ModelForm):
 
 
 
-# class PurchaseOrderForm(forms.ModelForm):
-#     class Meta:
-#         model = PurchaseOrder
-#         fields = '__all__'  
-
-# class PurchaseOrderItemForm(forms.ModelForm):
-#     class Meta:
-#         model = PurchaseOrderItem
-#         fields = '__all__'  
 
 class PurchaseOrderForm(forms.ModelForm):
     class Meta:

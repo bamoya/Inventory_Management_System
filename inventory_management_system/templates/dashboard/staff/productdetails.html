@@ -26,21 +26,24 @@
     <h4>Category</h4>
     <h6>{{product.category}}</h6>
     </li>
-    
     <li>
-    <h4>Minimum Qty</h4>
-    <h6>5</h6>
-    </li>
+        <h4>Price</h4>
+        <h6>{{product.price}}</h6>
+        </li>
     <li>
     <h4>Quantity</h4>
-    <h6>{{product.quantity}}</h6>
+    <h6>{{product.stock.quantity}}</h6>
     </li>
-    
-    
     <li>
-    <h4>Price</h4>
-    <h6>{{product.price}}</h6>
+    <h4>Min Qty</h4>
+    <h6>{{product.min_quantity}}</h6>
     </li>
+    <li>
+        <h4>Max Qty</h4>
+        <h6>{{product.max_quantity}}</h6>
+        </li>
+
+    
     <li>
     <h4>Description</h4>
     <h6>{{product.description}}</h6>

@@ -11,9 +11,8 @@
 
 
 <div class="content">
+
 <div class="row">
-
-
 <div class="col-lg-3 col-sm-6 col-12 d-flex">
 <div class="dash-count">
 <div class="dash-counts">
@@ -83,106 +82,160 @@
         </div>
         </div>
 </div>
+
+
+
 <div class="row">
-<div class="col-lg-7 col-sm-12 col-12 d-flex">
-<div class="card flex-fill">
-<div class="card-header pb-0 d-flex justify-content-between align-items-center">
-<h5 class="card-title mb-0">Purchase & Sales</h5>
-<div class="graph-sets">
-<ul>
-<li>
-<span>Sales</span>
-</li>
-<li>
-<span>Purchase</span>
-</li>
-</ul>
-<div class="dropdown">
-<button class="btn btn-white btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
- 2022 <img src="{% static 'img/icons/dropdown.svg' %}" alt="img" class="ms-2">
-</button>
-<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-<li>
-<a href="javascript:void(0);" class="dropdown-item">2022</a>
-</li>
-<li>
-<a href="javascript:void(0);" class="dropdown-item">2021</a>
-</li>
-<li>
-<a href="javascript:void(0);" class="dropdown-item">2020</a>
-</li>
-</ul>
+    <div class="col-lg-7 col-sm-12 col-12 d-flex">
+        <div class="card flex-fill">
+            
+            <div class="card-header pb-0 d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Purchase & Sales</h5>
+                
+                    <div class="graph-sets">
+                        {% if years  %}
+                        <form  method="post">
+                            {% csrf_token %} 
+                        <select name="year" class="select"  onchange="this.form.submit()">
+                            <option value="" >year</option>
+                            {% for year in years %}
+                              <option value="{{ year|date:'Y' }}" >{{ year|date:'Y' }}</option>
+                            {% endfor %}
+                        </select> 
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+            <div class="card-body">
+                {% if sales  %}
+                <canvas id="sales"></canvas>
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script>
+                    const sales = [
+                        {% for sale in sales %}
+                        {'month': '{{ sale.month|date:'F' }}', 'sales' : {{ sale.total_amount}} },
+                        {% endfor %}
+                    ];
+                    const data = {
+                        datasets : [{
+                            label: 'Sales per Month',
+                            data: sales,
+                            backgroundColor:'rgba(255,26,104,0.2)',
+                            borderColor:'rgba(255,26,104,1)',
+                            tension: 0.4,
+                            parsing : {
+                                xAxisKey:'month',
+                                yAxisKey:'sales'
+                            }
+                        }]
+                    }
+                    const config ={
+                        type: 'line',
+                        data ,
+                        options: {
+                        scales: {
+                            y: {
+                            beginAtZero: true
+                            }
+                        }
+                        
+                        }
+                    }
+                    const ctx = document.getElementById('sales');
+                    const mychart = new Chart(ctx,config );
+                </script>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if purchases  %}
+                <canvas id="purchases"></canvas>
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script>
+                    const purchases = [
+                        {% for purchase in purchases %}
+                        {'month': '{{ purchase.month|date:'F' }}', 'purchases' : {{ purchase.total_order_cost }} },
+                        {% endfor %}
+                    ];
+                    const data2 = {
+                        datasets : [{
+                            label: 'Purchases per Month',
+                            data: purchases,
+                            backgroundColor:'rgba(75,192,192,0.2)',
+                            borderColor:'rgba(75,192,192,1)',
+                            tension: 0.4,
+                            parsing : {
+                                xAxisKey:'month',
+                                yAxisKey:'purchases'
+                            }
+                        }]
+                    }
+                    const config1 ={
+                        type: 'line',
+                        data: data2 ,
+                        options: {
+                        scales: {
+                            y: {
+                            beginAtZero: true
+                            }
+                        }
+                        
+                        }
+                    }
+                   
+                    const mychart1 = new Chart(document.getElementById('purchases'), config1 );
+                </script>
+                {% endif %}
+            </div>
+            
+        </div>
+    </div>
+    <div class="col-lg-5 col-sm-12 col-12 d-flex">
+            <div class="card flex-fill">
+            <div class="card-header pb-0 d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">Products Out of Stock</h4>
+            <div class="dropdown">
+            <a href="javascript:void(0);" data-bs-toggle="dropdown" aria-expanded="false" class="dropset">
+            <i class="fa fa-ellipsis-v"></i>
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <li>
+            <a href="{% url 'dashboard:productlist' %}" class="dropdown-item">Product List</a>
+            </li>
+            <li>
+            <a href="{% url 'dashboard:addproduct' %}" class="dropdown-item">Product Add</a>
+            </li>
+            </ul>
+            </div>
+            </div>
+            <div class="card-body">
+            <div class="table-responsive dataview">
+            <table class="table datatable ">
+            <thead>
+            <tr>
+            <th>Id</th>
+            <th>Products</th>
+            <th>Min Quantity</th>
+            <th>Stock Quantity</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                {% if product.stock.quantity < product.min_quantity %}
+                <tr>
+                    <td>{{product.id}}</td>
+                    <td>{{product.name}}</td>
+                    <td>{{product.min_quantity}}</td>
+                    <td>{{product.stock.quantity}}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+            </table>
+            </div>
+            </div>
+            </div>
+    </div>
 </div>
 </div>
-</div>
-<div class="card-body">
-    
-
-    {% comment %} <div id="sales_charts"></div>
-    <script>
-
-    </script> {% endcomment %}
-</div>
-
-
-
-
-</div>
-</div>
-<div class="col-lg-5 col-sm-12 col-12 d-flex">
-<div class="card flex-fill">
-<div class="card-header pb-0 d-flex justify-content-between align-items-center">
-<h4 class="card-title mb-0">Recently Added Products</h4>
-<div class="dropdown">
-<a href="javascript:void(0);" data-bs-toggle="dropdown" aria-expanded="false" class="dropset">
-<i class="fa fa-ellipsis-v"></i>
-</a>
-<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-<li>
-<a href="{% url 'dashboard:productlist' %}" class="dropdown-item">Product List</a>
-</li>
-<li>
-<a href="{% url 'dashboard:addproduct' %}" class="dropdown-item">Product Add</a>
-</li>
-</ul>
-</div>
-</div>
-<div class="card-body">
-<div class="table-responsive dataview">
-<table class="table datatable ">
-<thead>
-<tr>
-<th>Id</th>
-<th>Products</th>
-<th>Price</th>
-</tr>
-</thead>
-<tbody>
-    {% for product in products %}
-<tr>
-<td>{{product.id}}</td>
-<td >
-{{product.name}}
-</td>
-<td>{{product.price}}</td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
-</div>
-</div>
-</div>
-</div>
-</div>
-
-</div>
-
 
 {% endblock content %}
-
-
-{% block script %}
-
-
-{% endblock script %}
-

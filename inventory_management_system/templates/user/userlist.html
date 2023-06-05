@@ -1,0 +1,87 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block title %}Users List{% endblock title %}
+
+
+{% block content %}
+<div class="content">
+    <div class="page-header">
+    <div class="page-title">
+    <h4>Users List</h4>
+    <h6>Manage your Users</h6>
+    </div>
+    <div class="page-btn">
+    <a href="{% url 'adduser' %}" class="btn btn-added"><img src="{% static 'img/icons/plus.svg' %}" alt="img" class="me-1">Add New user</a>
+    </div> 
+    </div>
+    
+    <div class="card">
+    <div class="card-body">
+    <div class="table-top">
+    <div class="search-set">
+    <div class="search-input">
+    <a class="btn btn-searchset"><img src="{% static 'img/icons/search-white.svg' %}" alt="img"></a>
+    </div>
+    </div>
+   
+    </div>
+    
+    
+    
+    <div class="table-responsive">
+    <table class="table  datanew">
+    <thead>
+    <tr>
+    <th>User</th>
+    <th>Email</th>
+    <th>Phone</th>
+    <th>Address</th>
+    <th>Role</th>
+    
+    <th></th>
+    </tr>
+    </thead>
+    <tbody>
+        
+        {% for user in users %}
+        <tr>
+            <td>{{user}}</td>
+            <td>{{user.email}}</td>
+            
+            <td>{{user.profile.phone}}</td>
+            <td>{{user.profile.adress}}</td>
+
+            <td>
+                {% if user.is_superuser %}
+                Admin
+                {% else %}
+                {% if user.is_staff %}Staff
+                {% else %} No Role Assigned
+                {% endif %}
+                {% endif %} 
+            </td>
+            <td>
+                {% comment %}
+                <a class="me-3" href="{% url 'dashboard:userdetails' user.id %}">
+                <img src="{% static 'img/icons/eye.svg' %}" alt="img">
+                </a>{% endcomment %}
+            
+                 <a class="me-3" href="{% url 'edituser' user.id %}">
+                <img src="{% static 'img/icons/edit.svg' %}" alt="img">
+                </a> 
+                <a href="{% url 'deleteuser' user.id %}">
+                <img src="{% static 'img/icons/delete.svg' %}" alt="img"> 
+                </a>
+            </td>
+            
+        </tr>
+        {% endfor %}
+    </tbody> 
+    </table>
+    </div>
+    </div>
+    </div>
+    
+    </div>
+    
+{% endblock content %}

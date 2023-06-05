@@ -28,6 +28,10 @@ urlpatterns = [
     path('', auth_views.LoginView.as_view(template_name='user/log/login.html'), name='login'),
     path('logout/', user_views.logout_user, name='logout'),
     path('profile/',user_views.profile_update,name="profile"),
+    path('users/userslist',user_views.user_list,name="userlist"),
+    path('users/adduser',user_views.add_user,name="adduser"),
+    path('users/deleteuser/<int:pk>',user_views.delete_user,name="deleteuser"),
+    path('users/edit/<int:pk>',user_views.edit_user,name="edituser"),
 
 ] + static(settings.MEDIA_URL, document_root= settings.MEDIA_ROOT )
 

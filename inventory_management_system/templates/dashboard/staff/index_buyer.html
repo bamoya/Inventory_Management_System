@@ -1,0 +1,161 @@
+{% extends 'partials/base.html' %}
+{% block title %}Welcome to Buyer Dashboard{% endblock title %}
+
+
+{% block content %}
+<div class="content">
+    <div class="row">
+
+
+        <div class="col-lg-3 col-sm-6 col-12 d-flex">
+        <div class="dash-count">
+        <div class="dash-counts">
+        <h4>{{suppliers}}</h4>
+        <h5>Suppliers</h5>
+        </div>
+        <div class="dash-imgs">
+        <i data-feather="user"></i>
+        </div>
+        </div>
+        </div>
+        
+       
+        <div class="col-lg-3 col-sm-6 col-12 d-flex">
+        <div class="dash-count das3">
+        <div class="dash-counts">
+        <h4>{{purchases_received}}</h4>
+        <h5>Purchases Received</h5>
+        </div>
+        <div class="dash-imgs">
+        <i data-feather="file"></i>
+        </div>
+        </div>
+        </div>
+        <div class="col-lg-3 col-sm-6 col-12 d-flex">
+            <div class="dash-count das2">
+            <div class="dash-counts">
+            <h4>{{purchases_pending}}</h4>
+            <h5>Purchases Pending</h5>
+            </div>
+            <div class="dash-imgs">
+            <i data-feather="file-text"></i>
+            </div>
+            </div>
+            </div>
+        
+    </div>
+
+    <div class="row">
+        <div class="col-lg-7 col-sm-12 col-12 d-flex">
+            <div class="card flex-fill">
+                
+                <div class="card-header pb-0 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Purchases</h5>
+                    
+                        <div class="graph-sets">
+                            {% if years  %}
+                            <form  method="post">
+                                {% csrf_token %} 
+                            <select name="year" class="select"  onchange="this.form.submit()">
+                                <option value="" >year</option>
+                                {% for year in years %}
+                                  <option value="{{ year|date:'Y' }}" >{{ year|date:'Y' }}</option>
+                                {% endfor %}
+                            </select> 
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+                <div class="card-body">
+                    {% if purchases  %}
+                    <canvas id="purchases"></canvas>
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                    <script>
+                        const purchases = [
+                            {% for purchase in purchases %}
+                            {'month': '{{ purchase.month|date:'F' }}', 'purchases' : {{ purchase.total_order_cost }} },
+                            {% endfor %}
+                        ];
+                        const data2 = {
+                            datasets : [{
+                                label: 'Purchases per Month',
+                                data: purchases,
+                                backgroundColor:'rgba(75,192,192,0.2)',
+                                borderColor:'rgba(75,192,192,1)',
+                                tension: 0.4,
+                                parsing : {
+                                    xAxisKey:'month',
+                                    yAxisKey:'purchases'
+                                }
+                            }]
+                        }
+                        const config1 ={
+                            type: 'line',
+                            data: data2 ,
+                            options: {
+                            scales: {
+                                y: {
+                                beginAtZero: true
+                                }
+                            }
+                            
+                            }
+                        }
+                       
+                        const mychart1 = new Chart(document.getElementById('purchases'), config1 );
+                    </script>
+                    {% endif %}
+                </div>
+                
+                
+            </div>
+        </div>
+        
+    </div>
+</div>
+{% endblock content %}
+
+<div class="col-lg-5 col-sm-12 col-12 d-flex">
+    <div class="card flex-fill">
+    <div class="card-header pb-0 d-flex justify-content-between align-items-center">
+    <h4 class="card-title mb-0">Recently Added Products</h4>
+    <div class="dropdown">
+    <a href="javascript:void(0);" data-bs-toggle="dropdown" aria-expanded="false" class="dropset">
+    <i class="fa fa-ellipsis-v"></i>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    <li>
+    <a href="{% url 'dashboard:productlist' %}" class="dropdown-item">Product List</a>
+    </li>
+    <li>
+    <a href="{% url 'dashboard:addproduct' %}" class="dropdown-item">Product Add</a>
+    </li>
+    </ul>
+    </div>
+    </div>
+    <div class="card-body">
+    <div class="table-responsive dataview">
+    <table class="table datatable ">
+    <thead>
+    <tr>
+    <th>Id</th>
+    <th>Products</th>
+    <th>Price</th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+    <tr>
+    <td>{{product.id}}</td>
+    <td >
+    {{product.name}}
+    </td>
+    <td>{{product.price}}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    </div>
+    </div>
+    </div>
+</div>

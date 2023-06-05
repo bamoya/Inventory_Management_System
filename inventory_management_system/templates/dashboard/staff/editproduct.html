@@ -43,15 +43,20 @@
 
     <div class="col-lg-3 col-sm-6 col-12">
     <div class="form-group">
-    
-    <label>Minimum Qty</label>
-    <input type="text" value="5">
+    <label>Quantity</label>
+    {{stock_form.quantity}}
     </div>
     </div>
     <div class="col-lg-3 col-sm-6 col-12">
     <div class="form-group">
-    <label>Quantity</label>
-    {{form.quantity}}
+    <label>Min Qty</label>
+    {{form.min_quantity}}
+    </div>
+    </div>
+    <div class="col-lg-3 col-sm-6 col-12">
+    <div class="form-group">
+    <label>Max Qty</label>
+    {{form.max_quantity}}
     </div>
     </div>
     <div class="col-lg-12">

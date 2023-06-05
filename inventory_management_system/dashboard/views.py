@@ -1,14 +1,29 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.forms import modelformset_factory
-from django.contrib.auth.decorators import login_required
-from .forms import CategoryForm, ProductForm, SupplierForm, CustomerForm, PurchaseOrderForm, PurchaseOrderItemForm, SaleForm, SaleItemForm
-from .models import Product, Supplier, PurchaseOrder, PurchaseOrderItem, Customer, Sale, SaleItem, Category
-from django.db.models import Sum
+from django.contrib.auth.decorators import login_required, user_passes_test
+from .forms import CategoryForm, CreateProductForm,EditProductForm, StockForm ,SupplierForm, CustomerForm, PurchaseOrderForm, PurchaseOrderItemForm, SaleForm, SaleItemForm
+from .models import Product, Supplier, PurchaseOrder, PurchaseOrderItem, Customer, Sale, SaleItem, Category, Stock
+from django.db.models import Sum, Count
+from django.db.models.functions import ExtractMonth,ExtractYear
+from django.db.models.functions import TruncMonth, TruncYear
+from django.http import JsonResponse
+from datetime import datetime
 # Create your views here.
+
 
 @login_required
 def index(request):
+    if request.user.is_superuser :
+        return index_admin(request)
+    elif request.user.groups.filter(name='vendors').exists() :
+        return index_vendor(request)
+    elif  request.user.groups.filter(name='buyers').exists() :
+        return index_buyer(request)
+
+@login_required
+@user_passes_test(lambda u:  u.is_superuser, login_url='login')
+def index_admin(request):
     products = Product.objects.order_by('-id')[:5]
     suppliers = Supplier.objects.all().count()
     customers = Customer.objects.all().count()
@@ -18,51 +33,263 @@ def index(request):
     purchases_pending = PurchaseOrder.objects.filter(status = 'pending').count()
     sales_paid = Sale.objects.filter(payment_status = 'paid').count()
     sales_unpaid = Sale.objects.filter(payment_status = 'unpaid').count()
-    context ={
+    years = Sale.objects.dates('sale_date', 'year')
+
+
+    if request.method == 'POST':
+        selected_year = request.POST.get('year')
+        sales = Sale.objects.filter(sale_date__year=selected_year).annotate(
+            year=TruncYear('sale_date'),
+            month=TruncMonth('sale_date')
+        ).values('year', 'month').annotate(
+            total_amount=Sum('total_amount')
+        ).order_by('year', 'month')
+        purchases = PurchaseOrder.objects.filter(order_date__year=selected_year).annotate(
+            year=TruncYear('order_date'),
+            month=TruncMonth('order_date')
+        ).values('year', 'month').annotate(
+            total_order_cost=Sum('total_order_cost')
+        ).order_by('year', 'month')
+        context ={
         'suppliers' : suppliers,
         'customers': customers,
         'products' : products,
         'sales_paid':sales_paid,
-        'sales_unpaid':sales_unpaid,
         'purchases_received':purchases_received,
-        'purchases_pending' : purchases_pending,
         'total_purchases' : total_purchases,
         'total_sales' : total_sales,
-    } 
+        'sales': sales,
+        'purchases': purchases,
+        'years' : years,
+        } 
+
+    else : 
+        context ={
+            'suppliers' : suppliers,
+            'customers': customers,
+            'products' : products,
+            'sales_paid':sales_paid,
+            'sales_unpaid':sales_unpaid,
+            'purchases_received':purchases_received,
+            'purchases_pending' : purchases_pending,
+            'total_purchases' : total_purchases,
+            'total_sales' : total_sales,
+            'years' : years,
+            
+        } 
     return render(request,'dashboard/admin/index.html',context=context)
 
 
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name='vendors').exists(), login_url='login')
+def index_vendor(request):
+    products = Product.objects.order_by('-id')[:5]
+    customers = Customer.objects.all().count()
+    sales_paid = Sale.objects.filter(payment_status = 'paid').count()
+    sales_unpaid = Sale.objects.filter(payment_status = 'unpaid').count()
+    years = Sale.objects.dates('sale_date', 'year')
+
+    if request.method == 'POST':
+        selected_year = request.POST.get('year')
+        sales = Sale.objects.filter(sale_date__year=selected_year).annotate(
+            year=TruncYear('sale_date'),
+            month=TruncMonth('sale_date')
+        ).values('year', 'month').annotate(
+            total_amount=Sum('total_amount')
+        ).order_by('year', 'month')
+        context = {
+        'customers' : customers,
+        'sales_paid' : sales_paid,
+        'sales_unpaid' : sales_unpaid,
+        'sales' : sales,
+        'years' : years,
+        'products' :products}
+        return render(request,'dashboard/staff/index_vendor.html', context=context)
+    else :
+        context = {
+            'customers' : customers,
+            'sales_paid' : sales_paid,
+            'sales_unpaid' : sales_unpaid,
+            'years' : years,
+            'products':products,
+        }
+    return render(request,'dashboard/staff/index_vendor.html', context=context)
+
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='buyers').exists(), login_url='login')
+def index_buyer(request):
+    products = Product.objects.order_by('-id')[:5]
+    suppliers = Supplier.objects.all().count()
+    purchases_received = PurchaseOrder.objects.filter(status = 'received').count()
+    purchases_pending = PurchaseOrder.objects.filter(status = 'pending').count()
+    years = Sale.objects.dates('sale_date', 'year')
+
+    if request.method == 'POST':
+        selected_year = request.POST.get('year')
+        purchases = PurchaseOrder.objects.filter(order_date__year=selected_year).annotate(
+            year=TruncYear('order_date'),
+            month=TruncMonth('order_date')
+        ).values('year', 'month').annotate(
+            total_order_cost=Sum('total_order_cost')
+        ).order_by('year', 'month')
+        context = {
+        'suppliers' : suppliers,
+        'purchases_received' : purchases_received,
+        'purchases_pending' : purchases_pending,
+        'purchases' : purchases,
+        'years' : years,
+        'products' :products}
+        return render(request,'dashboard/staff/index_buyer.html', context=context)
+    else :
+        context = {
+            'suppliers' : suppliers,
+            'purchases_received' : purchases_received,
+            'purchases_pending' : purchases_pending,
+            'years' : years,
+            'products':products,
+        }
+    return render(request,'dashboard/staff/index_buyer.html', context=context)
+
+#--------------------category views----------------------------------------------------------
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='buyers').exists() or u.is_superuser, login_url='login')
 def add_category(request):
     if request.method == 'POST':
         form = CategoryForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('dashboard:addcategory')  
+            return redirect('dashboard:categorylist')  
     else:
         form = CategoryForm()
     return render(request, 'dashboard/admin/addcategory.html', {'form': form})
 
 
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='buyers').exists() or u.groups.filter(name='vendors').exists() or u.is_superuser, login_url='login')
+def category_list(request):
+    categories = Category.objects.all()
+    context = {
+        'categories' : categories,
+    }
+    return render(request,'dashboard/staff/categorylist.html',context= context)
 
 
 @login_required
-def add_supplier(request):
+@user_passes_test(lambda u: u.groups.filter(name='buyers').exists() or u.groups.filter(name='vendors').exists() or u.is_superuser, login_url='login')
+def category_details(request, pk):
+    category = Category.objects.get(id=pk)
+    context = {
+        'category' : category,
+    }
+    return render(request,'dashboard/staff/categorydetails.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='buyers').exists() or u.is_superuser, login_url='login')
+def delete_category(request, pk):
+    category = Category.objects.get(id=pk)
     if request.method == 'POST':
-        form = SupplierForm(request.POST)
+        category.delete()
+        return redirect('dashboard:categorylist')
+    return render(request, 'dashboard/staff/deletecategory.html')
+
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='buyers').exists() or u.is_superuser, login_url='login')
+def edit_category(request, pk):
+    category = Category.objects.get(id=pk)
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, instance=category)
         if form.is_valid():
             form.save()
-            return redirect('dashboard:addsupplier')
-        else:
-            messages.error(request, 'Please correct the errors in the form.')
+            return redirect('dashboard:categorylist')
+        else : return
+    else :
+        form = EditProductForm(instance=category)
+    context = {
+        'form' : form,
+    }
+
+    return render(request,'dashboard/staff/editcategory.html', context)
+
+
+#--------------------product views----------------------------------------------------------
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='buyers').exists() or u.is_superuser, login_url='login')
+@login_required
+def add_product(request):
+    if request.method == 'POST':
+        form = CreateProductForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('dashboard:productlist')  
     else:
-        form = SupplierForm()
-    return render(request, 'dashboard/admin/addsupplier.html', {'form': form})
+        form = CreateProductForm()
+    
+    return render(request, 'dashboard/admin/addproduct.html', {'form': form})
 
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='buyers').exists() or u.groups.filter(name='vendors').exists() or u.is_superuser, login_url='login')
+def productlist(request):
+    products = Product.objects.all()
+    categories = Category.objects.all()
+    context = {
+        'products' : products,
+        'categories' : categories,
+    }
+    return render(request,'dashboard/staff/productlist.html', context)
 
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='buyers').exists() or u.groups.filter(name='vendors').exists() or u.is_superuser, login_url='login')
+def productdetails(request, pk):
+    product = Product.objects.get(id=pk)
+    context = {
+        'product' : product,
+    }
+    return render(request,'dashboard/staff/productdetails.html', context)
 
 
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name='buyers').exists() or u.is_superuser, login_url='login')
+def delete_product(request, pk):
+    product = Product.objects.get(id=pk)
+    if request.method == 'POST':
+        product.delete()
+        return redirect('dashboard:productlist')
+    return render(request, 'dashboard/staff/deleteproduct.html')
+
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='buyers').exists() or u.is_superuser, login_url='login')
+def edit_product(request, pk):
+    product = Product.objects.get(id=pk)
+    stock = product.stock
+    if request.method == 'POST':
+        form = EditProductForm(request.POST, instance=product)
+        stock_form = StockForm(request.POST,instance=stock)
+        if form.is_valid() and stock_form.is_valid():
+            form.save()
+            stock_form.save()
+            return redirect('dashboard:productlist')
+        else : return
+    else :
+        form = EditProductForm(instance=product)
+        stock_form = StockForm(instance=stock)
+    context = {
+        'form' : form,
+        'stock_form' : stock_form,
+    }
+
+    return render(request,'dashboard/staff/editproduct.html', context)
+
+#--------------------Customer views----------------------------------------------------------
+
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='vendors').exists() or u.is_superuser, login_url='login')
 def add_customer(request):
     if request.method == 'POST':
         form = CustomerForm(request.POST)
@@ -76,23 +303,92 @@ def add_customer(request):
     return render(request, 'dashboard/admin/addcustomer.html', {'form': form})
 
 
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='vendors').exists() or u.is_superuser, login_url='login')
+def customer_list(request):
+    customers = Customer.objects.all()
+    context = {
+        'customers' : customers,
+
+    }
+    return render(request,'dashboard/people/customerlist.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='vendors').exists() or u.is_superuser, login_url='login')
+def customer_details(request, pk):
+    customer = Customer.objects.get(id=pk)
+    context = {
+        'customer' : customer,
+    }
+    return render(request,'dashboard/people/customerdetails.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='vendors').exists() or u.is_superuser, login_url='login')
+def delete_customer(request, pk):
+    customer = Customer.objects.get(id=pk)
+    if request.method == 'POST':
+        customer.delete()
+        return redirect('dashboard:customerlist')
+    return render(request, 'dashboard/people/deletecustomer.html')
+
+
+#--------------------Supplier views----------------------------------------------------------
 
 
 @login_required
-def add_product(request):
+@user_passes_test(lambda u: u.groups.filter(name='buyers').exists() or u.is_superuser, login_url='login')
+def add_supplier(request):
     if request.method == 'POST':
-        form = ProductForm(request.POST)
+        form = SupplierForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('dashboard:addproduct')  # Replace 'product_list' with the URL name of the product list view
+            return redirect('dashboard:addsupplier')
+        else:
+            messages.error(request, 'Please correct the errors in the form.')
     else:
-        form = ProductForm()
-    
-    return render(request, 'dashboard/admin/addproduct.html', {'form': form})
+        form = SupplierForm()
+    return render(request, 'dashboard/admin/addsupplier.html', {'form': form})
+
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='buyers').exists() or u.is_superuser, login_url='login')
+def supplier_list(request):
+    suppliers = Supplier.objects.all()
+    context = {
+        'suppliers' : suppliers,
+
+    }
+    return render(request,'dashboard/people/supplierlist.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='buyers').exists() or u.is_superuser, login_url='login')
+def supplier_details(request, pk):
+    supplier = Supplier.objects.get(id=pk)
+    context = {
+        'supplier' : supplier,
+    }
+    return render(request,'dashboard/people/supplierdetails.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='buyers').exists() or u.is_superuser, login_url='login')
+def delete_supplier(request, pk):
+    supplier = Supplier.objects.get(id=pk)
+    if request.method == 'POST':
+        supplier.delete()
+        return redirect('dashboard:supplierlist')
+    return render(request, 'dashboard/people/deletesupplier.html')
+
+
+
+
+#--------------------Purchase views----------------------------------------------------------
 
 
 
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name='buyers').exists() or u.is_superuser, login_url='login')
 def add_purchase(request):
     if request.method == 'POST':
         # Retrieve the form data
@@ -121,12 +417,22 @@ def add_purchase(request):
                
 
                 product = Product.objects.get(id=product_id)
-                purchase_item = PurchaseOrderItem.objects.create(
-                    purchase_order=purchase,
-                    product=product,
-                    quantity=quantity,
-                )
-                purchase_item.save()
+
+                new_quantity = product.stock.quantity + quantity
+                if new_quantity > product.max_quantity:
+                    message = f'Oops! You passed the Max Qty for product {product.name} product'
+
+                    return render(request, 'partials/error.html',{'message' : message,})
+                else : 
+                    stock = Stock.objects.get(product=product)
+                    stock.quantity = new_quantity
+                    stock.save()
+                    purchase_item = PurchaseOrderItem.objects.create(
+                        purchase_order=purchase,
+                        product=product,
+                        quantity=quantity,
+                    )
+                    purchase_item.save()
 
 
         # Update the total cost of the purchase
@@ -166,6 +472,44 @@ def add_purchase(request):
 
 
 @login_required
+@user_passes_test(lambda u: u.groups.filter(name='buyers').exists() or u.is_superuser, login_url='login')
+def purchase_list(request):
+    purchases = PurchaseOrder.objects.all()
+    context = {
+        'purchases' : purchases,
+
+    }
+    return render(request,'dashboard/purchase/purchaselist.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='buyers').exists() or u.is_superuser, login_url='login')
+def purchase_details(request, pk):
+    purchase = PurchaseOrder.objects.get(id=pk)
+    purchase_items = PurchaseOrderItem.objects.filter(purchase_order=purchase)
+    context = {
+        'purchase' : purchase,
+        'items' : purchase_items,
+    }
+    return render(request,'dashboard/purchase/purchasedetails.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='buyers').exists() or u.is_superuser, login_url='login')
+def delete_purchase(request, pk):
+    purchase = PurchaseOrder.objects.get(id=pk)
+    if request.method == 'POST':
+        purchase.delete()
+        return redirect('dashboard:purchaselist')
+    return render(request, 'dashboard/purchase/deletepurchase.html')
+
+
+
+#--------------------Sale views----------------------------------------------------------
+
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='vendors').exists() or u.is_superuser, login_url='login')
 def add_sale(request):
     if request.method == 'POST':
         # Retrieve the form data
@@ -195,20 +539,30 @@ def add_sale(request):
                 payment_status = int(request.POST.get(f'quantity_{product_id}', 1))
                 product = Product.objects.get(id=product_id)
 
-                sale_item = SaleItem.objects.create(
-                    product=product,
-                    sale = sale,
-                    quantity=quantity,
+                new_quantity = product.stock.quantity - quantity
+                if new_quantity < 0 :
+                    message = f'Oops! You passed the stock Qty for {product.name} product'
 
-                )
-                sale_item.save()
+                    return render(request, 'partials/error.html',{'message' : message,})
+                
+                else :
+                    stock = Stock.objects.get(product=product)
+                    stock.quantity = new_quantity
+                    stock.save()
+                    sale_item = SaleItem.objects.create(
+                        product=product,
+                        sale = sale,
+                        quantity=quantity,
+
+                    )
+                    sale_item.save()
 
 
         # Update the total cost of the purchase
         sale.save()
 
         # Redirect to the purchase list page
-        return redirect('dashboard:index')
+        return redirect('dashboard:salelist')
     else:
         # Retrieve the customers from the database
         customers = Customer.objects.all()
@@ -239,95 +593,8 @@ def add_sale(request):
 
             return render(request, 'dashboard/staff/addsale.html', context)
         
-
-# ----------------------- product views ---------------------------
-
-def productlist(request):
-    products = Product.objects.all()
-    categories = Category.objects.all()
-    context = {
-        'products' : products,
-        'categories' : categories,
-    }
-    return render(request,'dashboard/staff/productlist.html', context)
-
-
-def productdetails(request, pk):
-    product = Product.objects.get(id=pk)
-    context = {
-        'product' : product,
-    }
-    return render(request,'dashboard/staff/productdetails.html', context)
-
-def delete_product(request, pk):
-    product = Product.objects.get(id=pk)
-    if request.method == 'POST':
-        product.delete()
-        return redirect('dashboard:productlist')
-    return render(request, 'dashboard/staff/deleteproduct.html')
-
-
-def edit_product(request, pk):
-    product = Product.objects.get(id=pk)
-    if request.method == 'POST':
-        form = ProductForm(request.POST, instance=product)
-        if form.is_valid():
-            form.save()
-            return redirect('dashboard:productlist')
-        else : print('form not valid')
-    else :
-        form = ProductForm(instance=product)
-    context = {
-        'form' : form,
-    }
-
-    return render(request,'dashboard/staff/editproduct.html', context)
-
-# ----------------------- category views ---------------------------
-
-def category_list(request):
-    categories = Category.objects.all()
-    context = {
-        'categories' : categories,
-    }
-    return render(request,'dashboard/staff/categorylist.html',context= context)
-
-
-def category_details(request, pk):
-    category = Category.objects.get(id=pk)
-    context = {
-        'category' : category,
-    }
-    return render(request,'dashboard/staff/categorydetails.html', context)
-
-def delete_category(request, pk):
-    category = Category.objects.get(id=pk)
-    if request.method == 'POST':
-        category.delete()
-        return redirect('dashboard:categorylist')
-    return render(request, 'dashboard/staff/deletecategory.html')
-
-
-def edit_category(request, pk):
-    category = Category.objects.get(id=pk)
-    if request.method == 'POST':
-        form = CategoryForm(request.POST, instance=category)
-        if form.is_valid():
-            form.save()
-            return redirect('dashboard:categorylist')
-        else : print('form not valid')
-    else :
-        form = ProductForm(instance=category)
-    context = {
-        'form' : form,
-    }
-
-    return render(request,'dashboard/staff/editcategory.html', context)
-
-
-
-# -------------------Sale View---------------------------
-
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='vendors').exists() or u.is_superuser, login_url='login')
 def sale_list(request):
     sales = Sale.objects.all()
     context = {
@@ -336,6 +603,8 @@ def sale_list(request):
     }
     return render(request,'dashboard/sale/salelist.html', context)
 
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='vendors').exists() or u.is_superuser, login_url='login')
 def sale_details(request, pk):
     sale = Sale.objects.get(id=pk)
     sale_items = SaleItem.objects.filter(sale=sale)
@@ -345,6 +614,8 @@ def sale_details(request, pk):
     }
     return render(request,'dashboard/sale/saledetails.html', context)
 
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='vendors').exists() or u.is_superuser, login_url='login')
 def delete_sale(request, pk):
     sale = Sale.objects.get(id=pk)
     if request.method == 'POST':
@@ -355,6 +626,8 @@ def delete_sale(request, pk):
 SaleItemFormSet = modelformset_factory(SaleItem, fields=('product', 'quantity'))
 
 
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name='vendors').exists() or u.is_superuser, login_url='login')
 def edit_sale(request, pk):
     sale = Sale.objects.get(id=pk)
     items = SaleItem.objects.filter(sale=sale) 
@@ -365,12 +638,13 @@ def edit_sale(request, pk):
             if form_item.is_valid():
                 form_item.save()
             else : 
-                print('form 1 not valid')
+                return
 
         if sale_form.is_valid():
             sale_form.save()
             return redirect('dashboard:salelist')
-        else : print('form 2 not valid')
+        else :
+            pass
     else :
         sale_form = SaleForm(instance=sale)
         item_form = SaleItemFormSet(queryset=items)
@@ -378,84 +652,5 @@ def edit_sale(request, pk):
         'sale_form' : sale_form,
         'item_form' : item_form,
     }
-    print('--------------------------------------------------',item_form)
     return render(request,'dashboard/sale/editsale.html', context)
-
-
-
-# --------------------Purchase Views---------------------------------------
-
-def purchase_list(request):
-    purchases = PurchaseOrder.objects.all()
-    context = {
-        'purchases' : purchases,
-
-    }
-    return render(request,'dashboard/purchase/purchaselist.html', context)
-
-def purchase_details(request, pk):
-    purchase = PurchaseOrder.objects.get(id=pk)
-    purchase_items = PurchaseOrderItem.objects.filter(purchase_order=purchase)
-    context = {
-        'purchase' : purchase,
-        'items' : purchase_items,
-    }
-    return render(request,'dashboard/purchase/purchasedetails.html', context)
-
-def delete_purchase(request, pk):
-    purchase = PurchaseOrder.objects.get(id=pk)
-    if request.method == 'POST':
-        purchase.delete()
-        return redirect('dashboard:purchaselist')
-    return render(request, 'dashboard/purchase/deletepurchase.html')
-
-
-
-# -------------------------------- Customer View ---------------------------
-
-def customer_list(request):
-    customers = Customer.objects.all()
-    context = {
-        'customers' : customers,
-
-    }
-    return render(request,'dashboard/people/customerlist.html', context)
-
-def customer_details(request, pk):
-    customer = Customer.objects.get(id=pk)
-    context = {
-        'customer' : customer,
-    }
-    return render(request,'dashboard/people/customerdetails.html', context)
-
-def delete_customer(request, pk):
-    customer = Customer.objects.get(id=pk)
-    if request.method == 'POST':
-        customer.delete()
-        return redirect('dashboard:customerlist')
-    return render(request, 'dashboard/people/deletecustomer.html')
-
-
-# -------------------------------- Customer View ---------------------------
-
-def supplier_list(request):
-    suppliers = Supplier.objects.all()
-    context = {
-        'suppliers' : suppliers,
-
-    }
-    return render(request,'dashboard/people/supplierlist.html', context)
-
-def supplier_details(request, pk):
-    supplier = Supplier.objects.get(id=pk)
-    context = {
-        'supplier' : supplier,
-    }
-    return render(request,'dashboard/people/supplierdetails.html', context)
-
-def delete_supplier(request, pk):
-    supplier = Supplier.objects.get(id=pk)
-    if request.method == 'POST':
-        supplier.delete()
-        return redirect('dashboard:supplierlist')
-    return render(request, 'dashboard/people/deletesupplier.html')
+#

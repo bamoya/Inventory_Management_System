@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect
-from .forms import CreateUserForm, UserUpdateForm,ProfileUpdateForm
-from django.contrib.auth.models import User
+from .forms import CreateUserForm, UserUpdateForm,ProfileUpdateForm, AddUserForm, EditUserForm
+from django.contrib.auth.models import User, Group
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from .models import Profile
+# from django.forms import 
 
 # # Create your views here.
 
@@ -54,3 +57,67 @@ def profile_update(request):
         'profile_form': profile_form,
     }
     return render(request, 'user/profile.html',context)
+
+
+
+def user_list(request):
+    users = User.objects.all()
+    context = {
+        'users' : users,
+
+    }
+    return render(request,'user/userlist.html', context)
+
+def add_user(request):
+    if request.method == 'POST':
+            form = AddUserForm(request.POST)
+            profile_form = ProfileUpdateForm(request.POST)
+            if form.is_valid() and profile_form.is_valid() :
+                form.save()
+                
+                return redirect('userlist')  # Replace 'home' with your desired URL name
+    else:
+        profile_form = ProfileUpdateForm()
+        form = AddUserForm()
+    context ={
+        'form' : form,
+        'profile_form' : profile_form,
+    }
+    return render(request, 'user/adduser.html', context=context)
+
+
+def edit_user(request,pk):
+    user = User.objects.get(id=pk)
+    if request.method == 'POST':
+            user_form = EditUserForm(request.POST,instance = user)
+            profile_form = ProfileUpdateForm(request.POST,instance=user.profile)
+            grp_name = request.POST['grp']
+            if grp_name != 'none' :
+                group = Group.objects.get(name=grp_name)
+            # password_form = PasswordChangeForm( user ,request.POST)
+            if user_form.is_valid() and profile_form.is_valid():
+                user_form.save()
+                if grp_name != 'none':
+                    user.groups.add(group)
+                profile_form.save()
+                # password_form.save(commit=False)
+                return redirect('userlist')  # Replace 'home' with your desired URL name
+    else:
+        user_form = EditUserForm(instance = user)
+        profile_form = ProfileUpdateForm(instance=user.profile)
+        # password_form = PasswordChangeForm(user)
+    context= {
+        'user_form' : user_form,
+        'profile_form': profile_form
+        # 'password_form':password_form,
+    }
+    return render(request, 'user/edituser.html',context=context)
+
+
+
+def delete_user(request, pk):
+    user = User.objects.get(id=pk)
+    if request.method == 'POST':
+        user.delete()
+        return redirect('userlist')
+    return render(request, 'user/deleteuser.html')

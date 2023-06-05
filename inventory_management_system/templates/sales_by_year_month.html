@@ -1,0 +1,69 @@
+{% extends 'partials/base.html' %}
+
+
+
+
+{% block content %}
+
+<div class="col-lg-7 col-sm-12 col-12 d-flex">
+  <div class="card flex-fill">
+  <div class="card-header pb-0 d-flex justify-content-between align-items-center">
+  <h5 class="card-title mb-0">Purchase & Sales</h5>
+  <div class="graph-sets">
+  <ul>
+  <li>
+  <span>Sales</span>
+  </li>
+  <li>
+  <span>Purchase</span>
+  </li>
+  </ul>
+  <div class="dropdown">
+  
+  <select id="year-select" class="select">
+    {% for year in years %}
+    <option value="{{ year.year }}">{{ year.year }}</option>
+    {% endfor %}    
+    </select> 
+  </div>
+  </div>
+  </div>
+  <div class="card-body">
+  <div id="myChart"></div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+  document.getElementById("year-select").addEventListener("change", function(){
+    var selectedYear = this.value;  
+    // AJAX call to get sales data for selected year
+    fetch('/sales-data/'+ selectedYear).then(response => response.json()).then(data => {
+      var months = data.months; 
+      var amounts = data.amounts;})
+    })
+  const ctx = document.getElementById('myChart');
+  
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [{
+        label: '# Sales by Month',
+        data: amounts,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
+  </div>
+  </div>
+  </div>
+{% endblock %}
